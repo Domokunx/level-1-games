@@ -130,35 +130,6 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
         };
     }
     
-    public bool IsConnectedToHq(Node hqNode, SupplyFaction faction)
-    {
-        if (!hqNode) return false;
-        if (supplyFaction != faction) return false;
-        if (this == hqNode) return true;
-
-        Queue<Node> queue = new Queue<Node>();
-        HashSet<Node> visited = new HashSet<Node>();
-
-        queue.Enqueue(this);
-        visited.Add(this);
-
-        while (queue.Count > 0)
-        {
-            Node currentNode = queue.Dequeue();
-
-            foreach (Node neighbor in currentNode.neighbours)
-            {
-                if (neighbor.supplyFaction != faction || visited.Contains(neighbor)) continue;
-                if (neighbor == hqNode) return true;
-
-                visited.Add(neighbor);
-                queue.Enqueue(neighbor);
-            }
-        }
-
-        return false;
-    }
-    
     public void SetHighlightState(NodeHighlightState state)
     {
         CurrentHighlightState = state;

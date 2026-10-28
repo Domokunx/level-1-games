@@ -350,7 +350,7 @@ public class BattleManager : MonoBehaviour
         {
             SupplyFaction conqueringFaction = winningUnit.isPlayerUnit ? SupplyFaction.Ally : SupplyFaction.Enemy;
             targetNode.SetSupplyFaction(conqueringFaction, winningUnit);
-            NodeManager.Instance.UpdateAllPathColors();
+            NodeManager.Instance.RefreshSupplyState();
         }
     }
     public void OnClickDeploy()
@@ -365,7 +365,7 @@ public class BattleManager : MonoBehaviour
         newUnit.isPlayerUnit = true;
         SupplyFaction deploymentFaction = newUnit.isPlayerUnit ? SupplyFaction.Ally : SupplyFaction.Enemy;
         inspectedNode.SetSupplyFaction(deploymentFaction, newUnit);
-        NodeManager.Instance.UpdateAllPathColors();
+        NodeManager.Instance.RefreshSupplyState();
 
         _currentDeploysLeft--;
 

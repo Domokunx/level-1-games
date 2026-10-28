@@ -30,10 +30,14 @@ public class NodeManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
-        // Init Map
+        
         FindALlNodes();
         GenerateAllPaths();
+    }
+
+    private void Start()
+    {
+        // Init Map
         RenderAllPaths();
     }
 
@@ -83,10 +87,13 @@ public class NodeManager : MonoBehaviour
         UpdateAllPathColors();
     }
 
-    public void UpdateAllPathColors()
+    public void RefreshSupplyState()
     {
         RecalculateSupplyConnections();
-        
+        UpdateAllPathColors();
+    }
+    public void UpdateAllPathColors()
+    {
         foreach (var kvp in _pathLineRenderers)
         {
             Path path = kvp.Key;
@@ -113,8 +120,8 @@ public class NodeManager : MonoBehaviour
                 ? BattleManager.Instance.playerHeadquartersNode
                 : BattleManager.Instance.enemyHeadquartersNode;
 
-            bool fromConnected = path.From.IsConnectedToHq(headquarters, fromFaction);
-            bool toConnected = path.To.IsConnectedToHq(headquarters, fromFaction);
+            bool fromConnected = IsNodeSupplied(path.From, fromFaction);
+            bool toConnected = IsNodeSupplied(path.To, fromFaction);
 
             // An edge is active only when both endpoints are HQ-connected.
             if (!fromConnected || !toConnected)
