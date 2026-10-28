@@ -244,10 +244,10 @@ public class BattleManager : MonoBehaviour
             yield return StartCoroutine(unit.MoveAlongPath(path));
         }
 
+        unit.hasActedThisTurn = true;
         DeselectUnit();
         TrySelectUnit(unit); // Might be QoL if new unit state is shown
         isExecutingAction = false;
-        unit.hasActedThisTurn = true;
         
     }
 
@@ -303,10 +303,10 @@ public class BattleManager : MonoBehaviour
             yield return new WaitForSeconds(0.5f);
         }
 
+        attacker.hasActedThisTurn = true;
         DeselectUnit();
         TrySelectUnit(attacker);
         isExecutingAction = false;
-        attacker.hasActedThisTurn = true;
     }
     private void HandleUnitDefeat(Unit defeatedUnit, Unit winningUnit)
     {
