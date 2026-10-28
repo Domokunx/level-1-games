@@ -57,6 +57,9 @@ public class BattleManager : MonoBehaviour
 
     private void Start()
     { 
+        playerHeadquartersNode.SetSupplyFaction(SupplyFaction.Ally);
+        enemyHeadquartersNode.SetSupplyFaction(SupplyFaction.Enemy);
+        
         ResetDeploymentState();   
         SpawnInitialEnemies();
         
@@ -86,6 +89,7 @@ public class BattleManager : MonoBehaviour
         currentState == BattleState.PlayerTurn &&
         selectedUnit &&
         selectedUnit.currentNode &&
+        node &&
         node.currentUnit &&
         !node.currentUnit.isPlayerUnit &&
         selectedUnit.currentNode.neighbours.Contains(node);
@@ -232,6 +236,7 @@ public class BattleManager : MonoBehaviour
         List<Node> path = PathFinder.Instance.FindPath(unit.currentNode, destinationNode);
         if (path != null)
         {
+            unit.hasActedThisTurn = true;
             // Determine faction based on who is moving
             SupplyFaction movingFaction = unit.isPlayerUnit ? SupplyFaction.Ally : SupplyFaction.Enemy;
             
@@ -247,16 +252,14 @@ public class BattleManager : MonoBehaviour
             yield return StartCoroutine(unit.MoveAlongPath(path));
         }
 
-        unit.hasActedThisTurn = true;
         DeselectUnit();
-        TrySelectUnit(unit); // Might be QoL if new unit state is shown
         isExecutingAction = false;
-        
     }
 
     private IEnumerator ExecuteAttack(Unit attacker, Unit defender)
     {
         isExecutingAction = true;
+        attacker.hasActedThisTurn = true;
 
         // Determine strike order based on Speed
         Unit firstStriker = attacker;
@@ -283,7 +286,6 @@ public class BattleManager : MonoBehaviour
         if (secondStriker.currentHealth <= 0)
         {
             HandleUnitDefeat(secondStriker, firstStriker);
-            firstStriker.hasActedThisTurn = true;
             yield return new WaitForSeconds(0.5f);
             
             DeselectUnit();
@@ -308,7 +310,6 @@ public class BattleManager : MonoBehaviour
             yield return new WaitForSeconds(0.5f);
         }
 
-        attacker.hasActedThisTurn = true;
         DeselectUnit();
         isExecutingAction = false;
     }
@@ -459,12 +460,12 @@ public class BattleManager : MonoBehaviour
 
             // 1. Check for immediate Attack targets (Range 1)
             Unit targetPlayerToAttack = null;
-            foreach (var neighbor in enemy.currentNode.neighbours)
+            foreach (var neighbour in enemy.currentNode.neighbours)
             {
-                
-                if (neighbor.isOccupied && neighbor.currentUnit && neighbor.currentUnit.isPlayerUnit)
+                if (!neighbour) continue;
+                if (neighbour.isOccupied && neighbour.currentUnit && neighbour.currentUnit.isPlayerUnit)
                 {
-                    targetPlayerToAttack = neighbor.currentUnit;
+                    targetPlayerToAttack = neighbour.currentUnit;
                     break;
                 }
             }
