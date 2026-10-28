@@ -29,6 +29,8 @@ public class Unit : MonoBehaviour
             currentNode,
             isPlayerUnit ? SupplyFaction.Ally : SupplyFaction.Enemy
         );
+    public RegimentType Regiment => data.regimentType;
+    public bool IsAdnanBinSaidi => data.isAdnanBinSaidi;
     
     [Header("Animation Parameters")]
     [SerializeField] private float moveSpeed = 1.5f;
@@ -51,24 +53,12 @@ public class Unit : MonoBehaviour
         }
     }
     
-    public int GetEffectiveAttack
-    {
-        get
-        {
-            float attack = AttackPower;
-
-            if (IsSupplied)
-                attack *= 1.5f;
-
-            // Global Effects here
-            if (isPlayerUnit && NodeManager.Instance && NodeManager.Instance.IsGlobalEffectActive(GlobalNodeEffect.MacRitchieLost))
-            {
-                attack *= 0.75f;
-            }
-
-            return Mathf.RoundToInt(attack);
-        }
-    }
+    public int GetEffectiveAttack =>
+        Mathf.RoundToInt(
+            AttackPower *
+            (IsSupplied ? 1.5f : 1f) *
+            NodeManager.Instance.GetAttackMultiplier(this)
+        );
     
     public IEnumerator MoveAlongPath(List<Node> path, float stepDelay = 0.15f)
     {

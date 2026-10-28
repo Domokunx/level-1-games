@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using ScriptableObjects.Global_Effects;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -14,12 +15,6 @@ public enum NodeHighlightState
     ReachableAttack, 
     Selected, 
     Preview 
-}
-
-public enum GlobalNodeEffect
-{
-    None,
-    MacRitchieLost
 }
 
 public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
@@ -39,8 +34,7 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     public Unit supplyOwner;
     
     [Header("Global Effects")]
-    [SerializeField] private GlobalNodeEffect globalEffect;
-    public GlobalNodeEffect GlobalEffect => globalEffect;
+    public List<NodeEffect> effectsWhenLost = new();
     private bool _hasBeenLost;
 
     public bool IsControlledByEnemy

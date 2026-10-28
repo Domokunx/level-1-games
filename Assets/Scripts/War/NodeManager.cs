@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using ScriptableObjects.Global_Effects;
 using UnityEngine;
 
 public class NodeManager : MonoBehaviour
@@ -39,8 +40,8 @@ public class NodeManager : MonoBehaviour
     private void Start()
     {
         // Init Map
-        RenderAllPaths();
         GenerateAllPaths();
+        RenderAllPaths();
     }
 
     private void FindALlNodes()
@@ -158,17 +159,6 @@ public class NodeManager : MonoBehaviour
             SupplyFaction.Enemy => _enemySuppliedNodes.Contains(node),
             _ => false
         };
-    }
-    public bool IsGlobalEffectActive(GlobalNodeEffect effect)
-    {
-        if (_nodes == null)
-            return false;
-
-        return _nodes.Any(node =>
-            node &&
-            node.GlobalEffect == effect &&
-            node.IsControlledByEnemy
-        );
     }
 
     private void RecalculateSupplyConnections()
@@ -417,6 +407,41 @@ public class NodeManager : MonoBehaviour
 
         return distances;
     }
+    
+    public float GetAttackMultiplier(Unit unit)
+    {
+        if (!unit || _nodes == null)
+            return 1f;
+
+        float multiplier = 1f;
+
+        foreach (Node node in _nodes)
+        {
+            if (!node || !node.IsControlledByEnemy || node.effectsWhenLost == null) continue;
+
+            foreach (NodeEffect effect in node.effectsWhenLost)
+            {
+                if (effect && effect.stat == EffectStat.Attack && effect.AppliesTo(unit))
+                {
+                    multiplier *= effect.multiplier;
+                }
+            }
+        }
+
+        if (unit.currentNode)
+        {
+            foreach (NodeEffect effect in unit.currentNode.effectsWhenLost)
+            {
+                if (effect && effect.stat == EffectStat.Attack && effect.AppliesTo(unit))
+                {
+                    multiplier *= effect.multiplier;
+                }
+            }
+        }
+
+        return multiplier;
+    }
+    
     
     private void ValidateAndRepairNeighbours()
     {

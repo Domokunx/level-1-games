@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0c7aeb5b72c35a742858c953b93b332e, type: 3}
-  m_Name: Ally
+  m_Name: John Ballentine
   m_EditorClassIdentifier: Assembly-CSharp::ScriptableObjects.UnitDataSO
-  unitName: Ally
-  description: ally
+  unitName: Brigadier John Ballentine
+  description: Commander of 44th Indian Brigade
   portrait: {fileID: -6555109970528968690, guid: 142a2294ea6a10847b4ef65f363d9e7c, type: 3}
-  maxHealth: 200
-  moveRange: 1
-  attackPower: 100
+  maxHealth: 1000
+  moveRange: 3
+  attackPower: 300
   attackRange: 1
-  speed: 1
+  speed: 5
