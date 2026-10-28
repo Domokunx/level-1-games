@@ -142,14 +142,17 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     }
     public void AddUnit(Unit unit)
     {
-        if (!unit || units.Contains(unit)) return;
+        // Sanity check cuz of a stoopid bug
+        if (!unit) return;
+        RemoveInvalidUnits();
+        if (units.Contains(unit)) return;
+        
         if (isOccupied && units[0].isPlayerUnit != unit.isPlayerUnit) return;
 
         if (unit.currentNode && unit.currentNode != this)
         {
             unit.currentNode.RemoveUnit(unit);
         }
-        RemoveInvalidUnits();
         
         units.Add(unit);
         unit.currentNode = this;
@@ -194,6 +197,8 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     
     public void TakeStackDamage(int damage)
     {
+        RemoveInvalidUnits();
+        
         int remainingDamage = damage;
 
         // Weakest units are removed first

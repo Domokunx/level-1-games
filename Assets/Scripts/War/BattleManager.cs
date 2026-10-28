@@ -247,7 +247,11 @@ public class BattleManager : MonoBehaviour
         List<Node> path = PathFinder.Instance.FindPath(unit.currentNode, destinationNode);
         if (path != null)
         {
-            unit.hasActedThisTurn = true;
+            foreach (Unit stackUnit in unit.currentNode.units)
+            {
+                stackUnit.hasActedThisTurn = true;
+            }
+            
             // Determine faction based on who is moving
             SupplyFaction movingFaction = unit.isPlayerUnit ? SupplyFaction.Ally : SupplyFaction.Enemy;
             
@@ -269,8 +273,6 @@ public class BattleManager : MonoBehaviour
 
     public IEnumerator MoveStackAlongPath(List<Node> path, Node currentNode, float stepDelay = 0.15f)
     {
-        List<Unit> stack = currentNode.units.ToList();
-
         foreach (Node node in path)
         {
             NodeManager.Instance.MoveStackToNode(currentNode, node);
@@ -348,8 +350,8 @@ public class BattleManager : MonoBehaviour
         GameObject unitObj = Instantiate(unitPrefabToDeploy.gameObject, inspectedNode.transform.position, Quaternion.identity, alliesParent.transform);
         Unit newUnit = unitObj.GetComponent<Unit>();
         
-        NodeManager.OccupyNode(inspectedNode, newUnit);
         newUnit.isPlayerUnit = true;
+        NodeManager.OccupyNode(inspectedNode, newUnit);
         SupplyFaction deploymentFaction = newUnit.isPlayerUnit ? SupplyFaction.Ally : SupplyFaction.Enemy;
         inspectedNode.SetSupplyFaction(deploymentFaction, newUnit);
         NodeManager.Instance.RefreshSupplyState();
