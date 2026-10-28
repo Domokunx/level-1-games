@@ -75,14 +75,16 @@ public class BattleManager : MonoBehaviour
     }
     
     public bool CanDeployAt(Node node) => 
-        currentState == BattleState.Deployment && node && !node.currentUnit && _currentDeploysLeft > 0;
+        currentState == BattleState.Deployment && node && 
+        (!node.HasUnits() || node.units[0].isPlayerUnit) && 
+        _currentDeploysLeft > 0;
     public bool CanUndeployAt(Node node) =>
-        currentState == BattleState.Deployment && node && node.currentUnit && node.currentUnit.isPlayerUnit;
+        currentState == BattleState.Deployment && node && node.HasUnits()&& node.units[0] && node.units[0].isPlayerUnit;
     public bool CanMoveTo(Node node) => 
         currentState == BattleState.PlayerTurn && 
         selectedUnit && 
         node &&
-        !node.currentUnit && 
+        (!node.HasUnits() || selectedUnit.isPlayerUnit == node.units[0].isPlayerUnit) &&
         reachableNodes.Contains(node);
 
     public bool CanAttack(Node node) =>
@@ -90,8 +92,9 @@ public class BattleManager : MonoBehaviour
         selectedUnit &&
         selectedUnit.currentNode &&
         node &&
-        node.currentUnit &&
-        !node.currentUnit.isPlayerUnit &&
+        node.HasUnits()&&
+        node.units[0] &&
+        !node.units[0].isPlayerUnit &&
         selectedUnit.currentNode.neighbours.Contains(node);
     
     private void SpawnInitialEnemies()
@@ -125,7 +128,7 @@ public class BattleManager : MonoBehaviour
             newEnemy.isPlayerUnit = false;
 
             // Occupy the node and set initial enemy supply faction/territory
-            targetNode.OccupyNode(newEnemy);
+            targetNode.AddUnit(newEnemy);
             targetNode.SetSupplyFaction(SupplyFaction.Enemy, newEnemy);
 
             spawnedCount++;
@@ -152,13 +155,13 @@ public class BattleManager : MonoBehaviour
 
         switch (currentState)
         {
-            case BattleState.PlayerTurn when node.currentUnit != null && node.currentUnit.isPlayerUnit:
-                TrySelectUnit(node.currentUnit);
+            case BattleState.PlayerTurn when node.units[0] != null && node.units[0].isPlayerUnit:
+                TrySelectUnit(node.units[0]);
                 break;
             
             case BattleState.PlayerTurn:
             {
-                if (node.CurrentHighlightState == NodeHighlightState.None && !node.currentUnit)
+                if (node.CurrentHighlightState == NodeHighlightState.None && !node.units[0])
                 {
                     DeselectUnit();
                 }
@@ -256,16 +259,19 @@ public class BattleManager : MonoBehaviour
         isExecutingAction = false;
     }
 
-    private IEnumerator ExecuteAttack(Unit attacker, Unit defender)
+    private IEnumerator ExecuteAttack(Node attacker, Node defender)
     {
         isExecutingAction = true;
-        attacker.hasActedThisTurn = true;
+        foreach (var unit in attacker.units)
+        {
+            unit.hasActedThisTurn = true;
+        }
 
         // Determine strike order based on Speed
-        Unit firstStriker = attacker;
-        Unit secondStriker = defender;
+        Node firstStriker = attacker;
+        Node secondStriker = defender;
 
-        if (defender.Speed > attacker.Speed)
+        if (defender.StackSpeed > attacker.StackSpeed)
         {
             firstStriker = defender;
             secondStriker = attacker;
@@ -274,18 +280,22 @@ public class BattleManager : MonoBehaviour
         yield return new WaitForSeconds(0.3f);
 
         // --- FIRST STRIKE ---
-        if (secondStriker.currentNode)
+        if (secondStriker)
         {
-            StartCoroutine(secondStriker.currentNode.FlashDamageEffect());
-            StartCoroutine(secondStriker.currentNode.PulsePortrait());
+            StartCoroutine(secondStriker.FlashDamageEffect());
+            StartCoroutine(secondStriker.PulsePortrait());
         }
-        secondStriker.TakeDamage(firstStriker.GetEffectiveAttack);
+        secondStriker.TakeStackDamage(firstStriker.StackEffectiveAttack);
         yield return new WaitForSeconds(0.5f);
 
         // Check if the first strike defeated the target
-        if (secondStriker.currentHealth <= 0)
+        if (secondStriker.StackHealth <= 0)
         {
-            HandleUnitDefeat(secondStriker, firstStriker);
+            foreach (var unit in secondStriker.units)
+            {
+                HandleUnitDefeat(unit, firstStriker.units[0]);
+            }
+
             yield return new WaitForSeconds(0.5f);
             
             DeselectUnit();
@@ -294,19 +304,22 @@ public class BattleManager : MonoBehaviour
         }
 
         // --- COUNTER-ATTACK (Second Striker survives) ---
-        if (firstStriker.currentNode)
+        if (firstStriker)
         {
-            StartCoroutine(firstStriker.currentNode.FlashDamageEffect());
-            StartCoroutine(firstStriker.currentNode.PulsePortrait());
+            StartCoroutine(firstStriker.FlashDamageEffect());
+            StartCoroutine(firstStriker.PulsePortrait());
         }
 
-        firstStriker.TakeDamage(secondStriker.GetEffectiveAttack);
+        firstStriker.TakeStackDamage(secondStriker.StackEffectiveAttack);
         yield return new WaitForSeconds(0.5f);
 
         // Check if the counter-attack defeated the attacker
-        if (firstStriker.currentHealth <= 0)
+        if (firstStriker.StackHealth <= 0)
         {
-            HandleUnitDefeat(firstStriker, secondStriker);
+            foreach (var unit in firstStriker.units)
+            {
+                HandleUnitDefeat(unit, secondStriker.units[0]);
+            }
             yield return new WaitForSeconds(0.5f);
         }
 
@@ -321,7 +334,7 @@ public class BattleManager : MonoBehaviour
         // 1. Unoccupy and destroy the defeated unit
         if (targetNode)
         {
-            targetNode.UnoccupyNode();
+            targetNode.RemoveUnit(defeatedUnit);
         }
     
         if (defeatedUnit.gameObject)
@@ -335,12 +348,12 @@ public class BattleManager : MonoBehaviour
             Node startNode = winningUnit.currentNode;
             if (startNode)
             {
-                startNode.UnoccupyNode();
+                startNode.RemoveUnit(defeatedUnit);
             }
         
             if (targetNode)
             {
-                targetNode.OccupyNode(winningUnit);
+                targetNode.AddUnit(winningUnit);
                 winningUnit.transform.position = targetNode.transform.position;
             }
         }
@@ -383,7 +396,7 @@ public class BattleManager : MonoBehaviour
     {
         if (!CanUndeployAt(inspectedNode)) return;
 
-        Unit unitToRemove = inspectedNode.currentUnit;
+        Unit unitToRemove = inspectedNode.units[^1];
         NodeManager.Instance.UnoccupyNode(inspectedNode);
         Destroy(unitToRemove.gameObject);
 
@@ -410,11 +423,11 @@ public class BattleManager : MonoBehaviour
         if (!CanAttack(inspectedNode)) return;
 
         Unit attacker = selectedUnit;
-        Unit defender = inspectedNode.currentUnit;
+        Node defender = inspectedNode;
 
         if (attacker && defender)
         {
-            StartCoroutine(ExecuteAttack(attacker, defender));
+            StartCoroutine(ExecuteAttack(attacker.currentNode, defender));
         }
     }
     
@@ -526,9 +539,9 @@ public class BattleManager : MonoBehaviour
 
             foreach (Node neighbour in enemy.currentNode.neighbours)
             {
-                if (!neighbour || !neighbour.currentUnit || !neighbour.currentUnit.isPlayerUnit) continue;
+                if (!neighbour || !neighbour.units[0] || !neighbour.units[0].isPlayerUnit) continue;
 
-                Unit candidate = neighbour.currentUnit;
+                Unit candidate = neighbour.units[0];
                 bool canKill = enemy.GetEffectiveAttack >= candidate.currentHealth;
 
                 if (canKill && !foundLethalTarget)
@@ -546,7 +559,7 @@ public class BattleManager : MonoBehaviour
 
             if (targetPlayerToAttack)
             {
-                yield return StartCoroutine(ExecuteAttack(enemy, targetPlayerToAttack));
+                yield return StartCoroutine(ExecuteAttack(enemy.currentNode, targetPlayerToAttack.currentNode));
                 yield return new WaitForSeconds(0.4f);
                 continue;
             }

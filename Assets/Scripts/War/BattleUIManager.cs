@@ -68,23 +68,23 @@ public class BattleUIManager : MonoBehaviour
         Unit allyToShow = null;
         if (BattleManager.Instance.currentState == BattleState.Deployment)
         {
-            if (node.currentUnit && node.currentUnit.isPlayerUnit)
+            if (node.units.Count != 0 && node.units[0] && node.units[0].isPlayerUnit)
             {
-                allyToShow = node.currentUnit;
+                allyToShow = node.units[0];
             }
         }
         else
         {
-            allyToShow = (selectedUnit) ? selectedUnit : (node.currentUnit && node.currentUnit.isPlayerUnit ? node.currentUnit : null);
+            allyToShow = (selectedUnit) ? selectedUnit : (node.units[0] && node.units[0].isPlayerUnit ? node.units[0] : null);
         }
 
         if (allyToShow) ShowSelectedUnitUI(allyToShow);
         else HideSelectedUnitUI();
 
         // Enemy UI
-        if (node.currentUnit && !node.currentUnit.isPlayerUnit)
+        if (node.units.Count != 0 && node.units[0] && !node.units[0].isPlayerUnit)
         {
-            ShowEnemyUnitUI(node.currentUnit);
+            ShowEnemyUnitUI(node.units[0]);
         }
         else
         {

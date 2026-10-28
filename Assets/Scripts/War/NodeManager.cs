@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class NodeManager : MonoBehaviour
@@ -6,8 +7,8 @@ public class NodeManager : MonoBehaviour
     public static NodeManager Instance;
 
     private Node[] _nodes;
-    private HashSet<Path> _paths = new HashSet<Path>();
-    private Dictionary<Path, LineRenderer> _pathLineRenderers = new Dictionary<Path, LineRenderer>();
+    private readonly HashSet<Path> _paths = new HashSet<Path>();
+    private readonly Dictionary<Path, LineRenderer> _pathLineRenderers = new Dictionary<Path, LineRenderer>();
     private readonly HashSet<Node> _allySuppliedNodes = new();
     private readonly HashSet<Node> _enemySuppliedNodes = new();
     
@@ -32,6 +33,7 @@ public class NodeManager : MonoBehaviour
         }
         
         FindALlNodes();
+        // ValidateAndRepairNeighbours();
         GenerateAllPaths();
     }
 
@@ -214,14 +216,14 @@ public class NodeManager : MonoBehaviour
     {
         if (!node || !unit) return;
         
-        node.OccupyNode(unit);
+        node.AddUnit(unit);
     }
 
     public void UnoccupyNode(Node node)
     {
         if (!node) return;   
         
-        node.UnoccupyNode();
+        node.RemoveUnit(node.units[^1]);
     }
     
     // BFS
@@ -252,7 +254,7 @@ public class NodeManager : MonoBehaviour
             
                 // If the neighbor is occupied by an enemy, do NOT enqueue it for further path expansion.
                 // We still added it to 'res' if dist > 0 for attack search
-                if (neighbour.isOccupied && neighbour.currentUnit && !neighbour.currentUnit.isPlayerUnit)
+                if (neighbour.isOccupied && neighbour.units[0] && !neighbour.units[0].isPlayerUnit)
                 {
                     continue; 
                 }
@@ -296,7 +298,7 @@ public class NodeManager : MonoBehaviour
         {
             if (node == unit.currentNode) continue;
 
-            bool isEnemy = node.isOccupied && node.currentUnit != null && !node.currentUnit.isPlayerUnit;
+            bool isEnemy = node.isOccupied && node.units[0] != null && !node.units[0].isPlayerUnit;
         
             if (!isEnemy)
             {
@@ -307,7 +309,7 @@ public class NodeManager : MonoBehaviour
         // 2. Highlight Range 1 Attack Targets (Strictly adjacent neighbors to the unit's CURRENT position)
         foreach (Node neighbor in unit.currentNode.neighbours)
         {
-            if (neighbor != null && neighbor.isOccupied && neighbor.currentUnit != null && !neighbor.currentUnit.isPlayerUnit)
+            if (neighbor != null && neighbor.isOccupied && neighbor.units[0] != null && !neighbor.units[0].isPlayerUnit)
             {
                 neighbor.SetHighlightState(NodeHighlightState.ReachableAttack);
             }
@@ -340,9 +342,9 @@ public class NodeManager : MonoBehaviour
         {
             Node current = queue.Dequeue();
 
-            if (current.isOccupied && current.currentUnit && current.currentUnit.isPlayerUnit)
+            if (current.isOccupied && current.units[0] && current.units[0].isPlayerUnit)
             {
-                return current.currentUnit;
+                return current.units[0];
             }
 
             // Expand to neighbors
@@ -386,5 +388,53 @@ public class NodeManager : MonoBehaviour
         }
 
         return distances;
+    }
+    
+    private void ValidateAndRepairNeighbours()
+    {
+        if (_nodes == null)
+            return;
+
+        foreach (Node node in _nodes)
+        {
+            if (!node)
+                continue;
+
+            if (node.neighbours == null)
+            {
+                node.neighbours = new List<Node>();
+            }
+
+            // Remove null references, self-references and duplicates.
+            node.neighbours.RemoveAll(neighbour =>
+                !neighbour ||
+                neighbour == node
+            );
+
+            node.neighbours = node.neighbours
+                .Distinct()
+                .ToList();
+        }
+
+        // Ensure every connection works in both directions.
+        foreach (Node node in _nodes)
+        {
+            if (!node)
+                continue;
+
+            foreach (Node neighbour in node.neighbours)
+            {
+                if (!neighbour.neighbours.Contains(node))
+                {
+                    neighbour.neighbours.Add(node);
+
+                    Debug.LogWarning(
+                        $"Added missing reciprocal connection: " +
+                        $"{neighbour.name} <-> {node.name}",
+                        neighbour
+                    );
+                }
+            }
+        }
     }
 }

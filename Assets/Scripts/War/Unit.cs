@@ -62,10 +62,10 @@ public class Unit : MonoBehaviour
 
             if (currentNode)
             {
-                currentNode.UnoccupyNode();
+                currentNode.RemoveUnit(this);
             }
 
-            nextNode.OccupyNode(this);
+            nextNode.AddUnit(this);
 
             yield return new WaitForSeconds(stepDelay);
         }
