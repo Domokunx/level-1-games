@@ -269,39 +269,39 @@ public class NodeManager : MonoBehaviour
 
     public void MoveStackToNode(Node from, Node to)
     {
-        if (!from || !to || from == to)
+        if (!from || !to || from == to || !from.HasUnits())
             return;
 
-        List<Unit> copy = from.units.ToList();
+        List<Unit> movingUnits = from.units.ToList();
 
-        foreach (Unit unit in copy)
+        SupplyFaction movingFaction =
+            movingUnits[0].isPlayerUnit
+                ? SupplyFaction.Ally
+                : SupplyFaction.Enemy;
+
+        foreach (Unit unit in movingUnits)
         {
             from.RemoveUnit(unit);
+        }
+
+        // Clear any remaining units defensively (O(1) probably lol)
+        foreach (Unit unit in to.units.ToList())
+        {
+            to.RemoveUnit(unit);
+        }
+
+        to.SetSupplyFaction(movingFaction);
+
+        foreach (Unit unit in movingUnits)
+        {
             to.AddUnit(unit);
+            // unit.transform.position = to.transform.position; // Once we have unit representation, currently UI based
         }
 
         RefreshSupplyState();
     }
     
     #region Visual Highlights
-    public void HighlightNodes(List<Node> nodes, bool shouldHighlight)
-    {
-        foreach (Node n in nodes)
-        {
-            // Example: toggle a visual mesh renderer or ring child object
-            var renderer = n.GetComponent<SpriteRenderer>();
-            if (renderer)
-            {
-                renderer.material.color = shouldHighlight 
-                    ? n.isOccupied 
-                        ? (n.isOccupiedByAlly ? Color.blue : Color.red) 
-                        : Color.white 
-                    : Color.white;
-                        
-            }
-        }
-    }
-    
     public void HighlightRangesForUnit(Unit unit)
     {
         if (!unit || !unit.currentNode) return;
