@@ -59,6 +59,8 @@ public class BattleManager : MonoBehaviour
     { 
         ResetDeploymentState();   
         SpawnInitialEnemies();
+        
+        OnPhaseChanged?.Invoke(currentState);
     }
     private void OnEnable() => Node.OnNodeClicked += HandleNodeClick;
     private void OnDisable() => Node.OnNodeClicked -= HandleNodeClick;
@@ -70,19 +72,20 @@ public class BattleManager : MonoBehaviour
     }
     
     public bool CanDeployAt(Node node) => 
-        currentState == BattleState.Deployment && !node.currentUnit && _currentDeploysLeft > 0;
+        currentState == BattleState.Deployment && node && !node.currentUnit && _currentDeploysLeft > 0;
     public bool CanUndeployAt(Node node) =>
         currentState == BattleState.Deployment && node && node.currentUnit && node.currentUnit.isPlayerUnit;
     public bool CanMoveTo(Node node) => 
         currentState == BattleState.PlayerTurn && 
         selectedUnit && 
+        node &&
         !node.currentUnit && 
         reachableNodes.Contains(node);
 
     public bool CanAttack(Node node) =>
         currentState == BattleState.PlayerTurn &&
         selectedUnit &&
-        !selectedUnit.currentNode &&
+        selectedUnit.currentNode &&
         node.currentUnit &&
         !node.currentUnit.isPlayerUnit &&
         selectedUnit.currentNode.neighbours.Contains(node);
