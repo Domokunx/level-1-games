@@ -63,7 +63,7 @@ public class BattleUIManager : MonoBehaviour
 
     public void ShowInspectedNodeUI(Node node, Unit selectedUnit)
     {
-        if (node == null)
+        if (!node)
         {
             HideAllPanels();
             return;
@@ -73,21 +73,21 @@ public class BattleUIManager : MonoBehaviour
         Unit allyToShow = null;
         if (BattleManager.Instance.currentState == BattleState.Deployment)
         {
-            if (node.currentUnit != null && node.currentUnit.isPlayerUnit)
+            if (node.currentUnit && node.currentUnit.isPlayerUnit)
             {
                 allyToShow = node.currentUnit;
             }
         }
         else
         {
-            allyToShow = (selectedUnit != null) ? selectedUnit : (node.currentUnit != null && node.currentUnit.isPlayerUnit ? node.currentUnit : null);
+            allyToShow = (selectedUnit) ? selectedUnit : (node.currentUnit && node.currentUnit.isPlayerUnit ? node.currentUnit : null);
         }
 
-        if (allyToShow != null) ShowSelectedUnitUI(allyToShow);
+        if (allyToShow) ShowSelectedUnitUI(allyToShow);
         else HideSelectedUnitUI();
 
         // Enemy UI
-        if (node.currentUnit != null && !node.currentUnit.isPlayerUnit)
+        if (node.currentUnit && !node.currentUnit.isPlayerUnit)
         {
             ShowEnemyUnitUI(node.currentUnit);
         }

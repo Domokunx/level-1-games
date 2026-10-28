@@ -92,6 +92,8 @@ public class NodeManager : MonoBehaviour
 
             Color targetColor = neutralLineColor;
 
+            if (p.From.supplyFaction == SupplyFaction.Neutral) return;
+            
             // Rule 1: Both connected nodes are Ally
             if (p.From.supplyFaction == SupplyFaction.Ally && p.To.supplyFaction == SupplyFaction.Ally)
             {
@@ -142,39 +144,43 @@ public class NodeManager : MonoBehaviour
 
     public static void OccupyNode(Node node, Unit unit)
     {
-        if (node == null || unit == null) return;
+        if (!node || !unit) return;
         
         node.OccupyNode(unit);
     }
 
     public void UnoccupyNode(Node node)
     {
-        if (node == null) return;   
+        if (!node) return;   
         
         node.UnoccupyNode();
     }
-
+    
     // BFS
-    // Updated GetNodesInRange in NodeManager.cs
+    private readonly Queue<(Node node, int distance)> _queue = new();
+    private readonly HashSet<Node> _visited = new HashSet<Node>();
     public List<Node> GetNodesInRange(Node startNode, int range)
     {
         List<Node> res = new List<Node>();
-        Queue<(Node node, int distance)> queue = new();
-        HashSet<Node> visited = new HashSet<Node>();
+        _queue.Clear();
+        _visited.Clear();
 
-        queue.Enqueue((startNode, 0));
-        visited.Add(startNode);
+        // Safety
+        if (!startNode || range <= 0) return res;
+        
+        _queue.Enqueue((startNode, 0));
+        _visited.Add(startNode);
 
-        while (queue.Count > 0)
+        while (_queue.Count > 0)
         {
-            var (current, dist) = queue.Dequeue();
+            var (current, dist) = _queue.Dequeue();
 
             if (dist > 0) res.Add(current); 
             if (dist >= range) continue;
         
             foreach (Node neighbour in current.neighbours)
             {
-                if (!neighbour || !visited.Add(neighbour)) continue;
+                if (!neighbour || !_visited.Add(neighbour)) continue;
             
                 // If the neighbor is occupied by an enemy, do NOT enqueue it for further path expansion.
                 // We still added it to 'res' if dist > 0 for attack search
@@ -183,7 +189,7 @@ public class NodeManager : MonoBehaviour
                     continue; 
                 }
 
-                queue.Enqueue((neighbour, dist + 1));
+                _queue.Enqueue((neighbour, dist + 1));
             }
         }
 

@@ -17,7 +17,7 @@ public class PathFinder : MonoBehaviour
 
     public List<Node> FindPath(Node start, Node end)
     {
-        if (start == null || end == null) return null;
+        if (!start || !end) return null;
         
         // Init
         NodeManager.Instance.ResetNodeCosts();
@@ -54,7 +54,11 @@ public class PathFinder : MonoBehaviour
             // Check neighbours
             foreach (Node neighbour in current.neighbours)
             {
-                if (neighbour == null || visited.Contains(neighbour)) continue;
+                // null neighbour or visited
+                if (!neighbour || visited.Contains(neighbour)) continue;
+                
+                // neighbour is occupied (Remove if allow bypassing allies)
+                if (neighbour != end && neighbour.isOccupied) continue;
                 
                 float newMovementCostToNeighbour = current.gCost + GetDistance(current, neighbour);
 

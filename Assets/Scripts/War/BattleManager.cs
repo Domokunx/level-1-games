@@ -73,17 +73,17 @@ public class BattleManager : MonoBehaviour
     public bool CanDeployAt(Node node) => 
         currentState == BattleState.Deployment && !node.currentUnit && _currentDeploysLeft > 0;
     public bool CanUndeployAt(Node node) =>
-        currentState == BattleState.Deployment && node != null && node.currentUnit != null && node.currentUnit.isPlayerUnit;
+        currentState == BattleState.Deployment && node && node.currentUnit && node.currentUnit.isPlayerUnit;
     public bool CanMoveTo(Node node) => 
         currentState == BattleState.PlayerTurn && 
-        selectedUnit != null && 
+        selectedUnit && 
         !node.currentUnit && 
         reachableNodes.Contains(node);
 
     public bool CanAttack(Node node) =>
         currentState == BattleState.PlayerTurn &&
-        selectedUnit != null &&
-        node.currentUnit != null &&
+        selectedUnit &&
+        node.currentUnit &&
         !node.currentUnit.isPlayerUnit &&
         selectedUnit.currentNode.neighbours.Contains(node);
     
@@ -241,13 +241,14 @@ public class BattleManager : MonoBehaviour
             NodeManager.Instance.UpdateAllPathColors();
             
             // Update node occupancy
-            unit.currentNode.UnoccupyNode();
             yield return StartCoroutine(unit.MoveAlongPath(path));
-            destinationNode.OccupyNode(unit);
         }
 
         DeselectUnit();
+        TrySelectUnit(unit); // Might be QoL if new unit state is shown
         isExecutingAction = false;
+        unit.hasActedThisTurn = true;
+        
     }
 
     private IEnumerator ExecuteAttack(Unit attacker, Unit defender)
@@ -303,7 +304,9 @@ public class BattleManager : MonoBehaviour
         }
 
         DeselectUnit();
+        TrySelectUnit(attacker);
         isExecutingAction = false;
+        attacker.hasActedThisTurn = true;
     }
     private void HandleUnitDefeat(Unit defeatedUnit, Unit winningUnit)
     {
@@ -348,7 +351,7 @@ public class BattleManager : MonoBehaviour
     public void OnClickDeploy()
     {
         if (!CanDeployAt(inspectedNode)) return;
-        if (unitPrefabToDeploy == null) return;
+        if (!unitPrefabToDeploy) return;
         
         GameObject unitObj = Instantiate(unitPrefabToDeploy.gameObject, inspectedNode.transform.position, Quaternion.identity, alliesParent.transform);
         Unit newUnit = unitObj.GetComponent<Unit>();
@@ -384,8 +387,8 @@ public class BattleManager : MonoBehaviour
         OnDeploymentCountChanged?.Invoke(_currentDeploysLeft, maxUnitsToDeploy);
         OnUnitDeployed?.Invoke(inspectedNode);
     }
-    
-    public void StartPlayerTurn()
+
+    private void StartPlayerTurn()
     {
         currentState = BattleState.PlayerTurn;
         inspectedNode = null;
@@ -394,7 +397,7 @@ public class BattleManager : MonoBehaviour
         // OnPhaseChanged?.Invoke();
         BattleUIManager.Instance.HideAllPanels();
         Debug.Log("Deployment Complete. Player Turn Started!");
-        OnPhaseChanged.Invoke(currentState);
+        OnPhaseChanged?.Invoke(currentState);
     }
     
     public void OnClickAttack()
@@ -404,7 +407,7 @@ public class BattleManager : MonoBehaviour
         Unit attacker = selectedUnit;
         Unit defender = inspectedNode.currentUnit;
 
-        if (attacker != null && defender != null)
+        if (attacker && defender)
         {
             StartCoroutine(ExecuteAttack(attacker, defender));
         }
@@ -448,12 +451,13 @@ public class BattleManager : MonoBehaviour
 
         foreach (var enemy in enemyUnits)
         {
-            if (!enemy || enemy.currentHealth <= 0) continue;
+            if (!enemy || !enemy.currentNode ||  enemy.currentHealth <= 0) continue;
 
             // 1. Check for immediate Attack targets (Range 1)
             Unit targetPlayerToAttack = null;
             foreach (var neighbor in enemy.currentNode.neighbours)
             {
+                
                 if (neighbor.isOccupied && neighbor.currentUnit && neighbor.currentUnit.isPlayerUnit)
                 {
                     targetPlayerToAttack = neighbor.currentUnit;
@@ -483,7 +487,7 @@ public class BattleManager : MonoBehaviour
                 }
             }
 
-            if (targetSupplyNode != null)
+            if (targetSupplyNode)
             {
                 yield return StartCoroutine(ExecuteMove(enemy, targetSupplyNode));
                 yield return new WaitForSeconds(0.4f);
