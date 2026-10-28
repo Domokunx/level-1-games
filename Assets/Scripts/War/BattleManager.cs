@@ -326,46 +326,7 @@ public class BattleManager : MonoBehaviour
         DeselectUnit();
         isExecutingAction = false;
     }
-    private void HandleUnitDefeat(Unit defeatedUnit, Unit winningUnit)
-    {
-        if (!defeatedUnit) return;
-        Node targetNode = defeatedUnit.currentNode;
-
-        // 1. Unoccupy and destroy the defeated unit
-        if (targetNode)
-        {
-            targetNode.RemoveUnit(defeatedUnit);
-        }
     
-        if (defeatedUnit.gameObject)
-        {
-            Destroy(defeatedUnit.gameObject);
-        }
-
-        // 2. If the winning unit was the attacker, they move into the conquered node
-        if (winningUnit && winningUnit.currentNode != targetNode)
-        {
-            Node startNode = winningUnit.currentNode;
-            if (startNode)
-            {
-                startNode.RemoveUnit(defeatedUnit);
-            }
-        
-            if (targetNode)
-            {
-                targetNode.AddUnit(winningUnit);
-                winningUnit.transform.position = targetNode.transform.position;
-            }
-        }
-
-        // 3. Capture supply line and update path colors
-        if (targetNode && winningUnit)
-        {
-            SupplyFaction conqueringFaction = winningUnit.isPlayerUnit ? SupplyFaction.Ally : SupplyFaction.Enemy;
-            targetNode.SetSupplyFaction(conqueringFaction, winningUnit);
-            NodeManager.Instance.RefreshSupplyState();
-        }
-    }
     public void OnClickDeploy()
     {
         if (!CanDeployAt(inspectedNode)) return;
@@ -514,11 +475,6 @@ public class BattleManager : MonoBehaviour
                     vulnerabilityScore -= graphDistance * 10f;
                 }
 
-                if (graphDistance != int.MaxValue)
-                {
-                    vulnerabilityScore -= graphDistance * 10f;
-                }
-
                 if (!(vulnerabilityScore > highestSupplyThreat)) continue;
                 
                 highestSupplyThreat = vulnerabilityScore;
@@ -539,7 +495,7 @@ public class BattleManager : MonoBehaviour
 
             foreach (Node neighbour in enemy.currentNode.neighbours)
             {
-                if (!neighbour || !neighbour.units[0] || !neighbour.units[0].isPlayerUnit) continue;
+                if (!neighbour || !neighbour.HasUnits() || !neighbour.units[0] || !neighbour.units[0].isPlayerUnit) continue;
 
                 Unit candidate = neighbour.units[0];
                 bool canKill = enemy.GetEffectiveAttack >= candidate.currentHealth;

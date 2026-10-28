@@ -221,7 +221,7 @@ public class NodeManager : MonoBehaviour
 
     public void UnoccupyNode(Node node)
     {
-        if (!node || node.HasUnits())
+        if (!node || !node.HasUnits())
             return;
         
         node.RemoveUnit(node.units[^1]);
@@ -269,12 +269,18 @@ public class NodeManager : MonoBehaviour
 
     public void MoveStackToNode(Node from, Node to)
     {
-        UnoccupyNode(from);
+        if (!from || !to || from == to)
+            return;
 
-        foreach (Unit unit in from.units)
+        List<Unit> copy = from.units.ToList();
+
+        foreach (Unit unit in copy)
         {
-            OccupyNode(to, unit);
+            from.RemoveUnit(unit);
+            to.AddUnit(unit);
         }
+
+        RefreshSupplyState();
     }
     
     #region Visual Highlights
