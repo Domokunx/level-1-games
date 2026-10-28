@@ -23,9 +23,12 @@ public class Unit : MonoBehaviour
     public int AttackPower => data  ? data.attackPower : 10;
     public int Speed => data  ? data.speed : 5;
     public Sprite Portrait => data  ? data.portrait : null;
-    public bool IsSupplied => currentNode 
-                              && currentNode.IsConnectedToHq(GetHqNode(), 
-                                  isPlayerUnit ? SupplyFaction.Ally : SupplyFaction.Enemy);
+    public bool IsSupplied =>
+        currentNode &&
+        NodeManager.Instance.IsNodeSupplied(
+            currentNode,
+            isPlayerUnit ? SupplyFaction.Ally : SupplyFaction.Enemy
+        );
     
     public int GetEffectiveAttack => IsSupplied ? Mathf.RoundToInt(AttackPower * 1.5f) : AttackPower;
 

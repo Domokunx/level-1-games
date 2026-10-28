@@ -8,6 +8,8 @@ public class NodeManager : MonoBehaviour
     private Node[] _nodes;
     private HashSet<Path> _paths = new HashSet<Path>();
     private Dictionary<Path, LineRenderer> _pathLineRenderers = new Dictionary<Path, LineRenderer>();
+    private readonly HashSet<Node> _allySuppliedNodes = new();
+    private readonly HashSet<Node> _enemySuppliedNodes = new();
     
     [Header("Supply Line Edge Colors")]
     [SerializeField] private Color allyLineColor = Color.blue;
@@ -83,6 +85,8 @@ public class NodeManager : MonoBehaviour
 
     public void UpdateAllPathColors()
     {
+        RecalculateSupplyConnections();
+        
         foreach (var kvp in _pathLineRenderers)
         {
             Path path = kvp.Key;
@@ -139,6 +143,52 @@ public class NodeManager : MonoBehaviour
         }
     }
 
+    public bool IsNodeSupplied(Node node, SupplyFaction faction)
+    {
+        if (!node) return false;
+
+        return faction switch
+        {
+            SupplyFaction.Ally => _allySuppliedNodes.Contains(node),
+            SupplyFaction.Enemy => _enemySuppliedNodes.Contains(node),
+            _ => false
+        };
+    }
+
+    private void RecalculateSupplyConnections()
+    {
+        _allySuppliedNodes.Clear();
+        _enemySuppliedNodes.Clear();
+
+        FloodSupply(BattleManager.Instance.playerHeadquartersNode, SupplyFaction.Ally, _allySuppliedNodes);
+        FloodSupply(BattleManager.Instance.enemyHeadquartersNode, SupplyFaction.Enemy, _enemySuppliedNodes);
+    }
+    private static void FloodSupply(Node headquarters, SupplyFaction faction, HashSet<Node> suppliedNodes)
+    {
+        if (!headquarters || headquarters.supplyFaction != faction) return;
+
+        Queue<Node> queue = new();
+        queue.Enqueue(headquarters);
+        suppliedNodes.Add(headquarters);
+
+        while (queue.Count > 0)
+        {
+            Node current = queue.Dequeue();
+
+            foreach (Node neighbour in current.neighbours)
+            {
+                if (!neighbour ||
+                    neighbour.supplyFaction != faction ||
+                    suppliedNodes.Contains(neighbour))
+                {
+                    continue;
+                }
+
+                suppliedNodes.Add(neighbour);
+                queue.Enqueue(neighbour);
+            }
+        }
+    }
     public Node GetClosestNodeByWorldPosition(Vector3 position)
     {
         Node closest = null;

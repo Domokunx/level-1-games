@@ -132,7 +132,7 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     
     public bool IsConnectedToHq(Node hqNode, SupplyFaction faction)
     {
-        if (hqNode == null) return false;
+        if (!hqNode) return false;
         if (supplyFaction != faction) return false;
         if (this == hqNode) return true;
 
