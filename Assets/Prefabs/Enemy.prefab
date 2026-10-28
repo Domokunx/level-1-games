@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4955765041605139443
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5330219043091669872}
+  - component: {fileID: -7622485273115405438}
+  m_Layer: 0
+  m_Name: Enemy
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5330219043091669872
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4955765041605139443}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.0669992, y: 0.70392555, z: -0.0669992, w: 0.70392555}
+  m_LocalPosition: {x: 0.95044, y: 0.43384, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 10.874, y: 90, z: 0}
+--- !u!114 &-7622485273115405438
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4955765041605139443}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0504bb9973b92f04d8296a03aae6df4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Unit
+  data: {fileID: 11400000, guid: 863b570b9555d7543a56c9b8c6d0c4fc, type: 2}
+  isPlayerUnit: 0
+  currentHealth: 100
+  currentNode: {fileID: 0}
+  hasActedThisTurn: 0
+  unitName: not frem
+  moveRange: 1
+  attackPower: 5
+  portrait: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  speed: 1
+  moveSpeed: 1.5
