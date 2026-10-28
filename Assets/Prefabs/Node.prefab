@@ -34,10 +34,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 5890897949489173167}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -50, y: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 1.2811215e-10, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1310905460760805127
 CanvasRenderer:
@@ -89,8 +89,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
-  m_HorizontalFit: 0
-  m_VerticalFit: 1
+  m_HorizontalFit: 2
+  m_VerticalFit: 0
 --- !u!114 &8760080771004853157
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -367,7 +367,7 @@ MonoBehaviour:
   unoccupiedAllyColor: {r: 0.4, g: 0.7, b: 1, a: 1}
   occupiedEnemyColor: {r: 1, g: 0, b: 0, a: 1}
   unoccupiedEnemyColor: {r: 1, g: 0.4, b: 0.4, a: 1}
-  neutralColor: {r: 1, g: 1, b: 1, a: 1}
+  neutralColor: {r: 0.4669811, g: 0.4669811, b: 0.4669811, a: 1}
   portraitsContainer: {fileID: 4047409423667128376}
   portraitPrefab: {fileID: 7097299813150252286, guid: 47458f40777330a4a8e81df6dbc10fdf, type: 3}
   nodeColor: {fileID: 8989767429051028801}
@@ -426,7 +426,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 0, g: 0.5294118, b: 0.9960785, a: 1}
+  m_Color: {r: 0.4666667, g: 0.4666667, b: 0.4666667, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

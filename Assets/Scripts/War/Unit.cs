@@ -30,8 +30,6 @@ public class Unit : MonoBehaviour
             isPlayerUnit ? SupplyFaction.Ally : SupplyFaction.Enemy
         );
     
-    public int GetEffectiveAttack => IsSupplied ? Mathf.RoundToInt(AttackPower * 1.5f) : AttackPower;
-
     [Header("Animation Parameters")]
     [SerializeField] private float moveSpeed = 1.5f;
 
@@ -50,6 +48,25 @@ public class Unit : MonoBehaviour
         {
             Debug.LogWarning($"Unit {gameObject.name} is missing a UnitDataSO reference!", this);
             currentHealth = 100; // Fallback default
+        }
+    }
+    
+    public int GetEffectiveAttack
+    {
+        get
+        {
+            float attack = AttackPower;
+
+            if (IsSupplied)
+                attack *= 1.5f;
+
+            // Global Effects here
+            if (isPlayerUnit && NodeManager.Instance && NodeManager.Instance.IsGlobalEffectActive(GlobalNodeEffect.MacRitchieLost))
+            {
+                attack *= 0.75f;
+            }
+
+            return Mathf.RoundToInt(attack);
         }
     }
     

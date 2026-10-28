@@ -159,6 +159,17 @@ public class NodeManager : MonoBehaviour
             _ => false
         };
     }
+    public bool IsGlobalEffectActive(GlobalNodeEffect effect)
+    {
+        if (_nodes == null)
+            return false;
+
+        return _nodes.Any(node =>
+            node &&
+            node.GlobalEffect == effect &&
+            node.IsControlledByEnemy
+        );
+    }
 
     private void RecalculateSupplyConnections()
     {

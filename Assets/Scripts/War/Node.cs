@@ -16,6 +16,12 @@ public enum NodeHighlightState
     Preview 
 }
 
+public enum GlobalNodeEffect
+{
+    None,
+    MacRitchieLost
+}
+
 public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
     public List<Node> neighbours;
@@ -31,6 +37,22 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     public Image unitImage;
     public SupplyFaction supplyFaction = SupplyFaction.Neutral;
     public Unit supplyOwner;
+    
+    [Header("Global Effects")]
+    [SerializeField] private GlobalNodeEffect globalEffect;
+    public GlobalNodeEffect GlobalEffect => globalEffect;
+    private bool _hasBeenLost;
+
+    public bool IsControlledByEnemy
+    {
+        get
+        {
+            if (ContainsEnemyUnits)
+                _hasBeenLost = true;
+
+            return _hasBeenLost;
+        }
+    }
     
     [Header("A* Pathfinding Data")]
     [System.NonSerialized] public float gCost; 
