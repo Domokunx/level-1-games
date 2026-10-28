@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public enum BattleState
@@ -259,13 +260,25 @@ public class BattleManager : MonoBehaviour
             NodeManager.Instance.RefreshSupplyState();
             
             // Update node occupancy
-            yield return StartCoroutine(unit.MoveAlongPath(path));
+            yield return StartCoroutine(MoveStackAlongPath(path, unit.currentNode));
         }
 
         DeselectUnit();
         isExecutingAction = false;
     }
 
+    public IEnumerator MoveStackAlongPath(List<Node> path, Node currentNode, float stepDelay = 0.15f)
+    {
+        List<Unit> stack = currentNode.units.ToList();
+
+        foreach (Node node in path)
+        {
+            NodeManager.Instance.MoveStackToNode(currentNode, node);
+            currentNode = node;
+            yield return new WaitForSeconds(stepDelay);
+        }
+    }
+    
     private IEnumerator ExecuteAttack(Node attacker, Node defender)
     {
         isExecutingAction = true;
@@ -420,6 +433,7 @@ public class BattleManager : MonoBehaviour
 
         Unit[] allUnits = FindObjectsByType<Unit>(FindObjectsSortMode.None);
         List<Unit> enemyUnits = new List<Unit>();
+        
         foreach (var u in allUnits)
         {
             if (u && !u.isPlayerUnit)
@@ -427,17 +441,22 @@ public class BattleManager : MonoBehaviour
                 enemyUnits.Add(u);
             }
         }
+        
+        HashSet<Node> processedNodes = new();
 
-        foreach (var enemy in enemyUnits)
+        foreach (Unit enemy in enemyUnits)
         {
-            if (!enemy || !enemy.currentNode ||  enemy.currentHealth <= 0) continue;
+            if (!enemy || !enemy.currentNode || !processedNodes.Add(enemy.currentNode)) continue;
+            
+            Node enemyStack = enemy.currentNode;
+
 
             // Get nodes strictly within this enemy's movement range
-            List<Node> enemyReachable = NodeManager.Instance.GetNodesInRange(enemy.currentNode, enemy.MoveRange);
+            List<Node> enemyReachable = NodeManager.Instance.GetNodesInRange(enemyStack, enemyStack.StackMoveRange);
             if (enemyReachable.Count == 0) continue;
 
             Dictionary<Node, int> graphDistances =
-                NodeManager.Instance.GetGraphDistances(enemy.currentNode);
+                NodeManager.Instance.GetGraphDistances(enemyStack);
             
             // Check for Vulnerable Supply Nodes 
             Node targetSupplyNode = null;
@@ -489,33 +508,33 @@ public class BattleManager : MonoBehaviour
             }
             
             // Check for immediate Attack targets (Range 1)
-            Unit targetPlayerToAttack = null;
+            Node targetNodeToAttack = null;
             int lowestHealth = int.MaxValue;
             bool foundLethalTarget = false;
 
-            foreach (Node neighbour in enemy.currentNode.neighbours)
+            foreach (Node neighbour in enemyStack.neighbours)
             {
                 if (!neighbour || !neighbour.HasUnits() || !neighbour.units[0] || !neighbour.units[0].isPlayerUnit) continue;
 
-                Unit candidate = neighbour.units[0];
-                bool canKill = enemy.GetEffectiveAttack >= candidate.currentHealth;
+                Node candidate = neighbour;
+                bool canKill = enemyStack.StackEffectiveAttack >= candidate.StackHealth;
 
                 if (canKill && !foundLethalTarget)
                 {
-                    targetPlayerToAttack = candidate;
-                    lowestHealth = candidate.currentHealth;
+                    targetNodeToAttack = candidate;
+                    lowestHealth = candidate.StackHealth;
                     foundLethalTarget = true;
                 }
-                else if (canKill == foundLethalTarget && candidate.currentHealth < lowestHealth)
+                else if (canKill == foundLethalTarget && candidate.StackHealth < lowestHealth)
                 {
-                    targetPlayerToAttack = candidate;
-                    lowestHealth = candidate.currentHealth;
+                    targetNodeToAttack = candidate;
+                    lowestHealth = candidate.StackHealth;
                 }
             }
 
-            if (targetPlayerToAttack)
+            if (targetNodeToAttack)
             {
-                yield return StartCoroutine(ExecuteAttack(enemy.currentNode, targetPlayerToAttack.currentNode));
+                yield return StartCoroutine(ExecuteAttack(enemy.currentNode, targetNodeToAttack));
                 yield return new WaitForSeconds(0.4f);
                 continue;
             }

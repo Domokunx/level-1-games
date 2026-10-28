@@ -140,9 +140,13 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
         if (!unit || units.Contains(unit)) return;
         if (isOccupied && units[0].isPlayerUnit != unit.isPlayerUnit) return;
 
+        if (unit.currentNode && unit.currentNode != this)
+        {
+            unit.currentNode.RemoveUnit(unit);
+        }
+        
         units.Add(unit);
         unit.currentNode = this;
-
         RefreshUnitVisual();
     }
 
