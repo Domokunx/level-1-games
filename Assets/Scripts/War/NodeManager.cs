@@ -85,30 +85,45 @@ public class NodeManager : MonoBehaviour
     {
         foreach (var kvp in _pathLineRenderers)
         {
-            Path p = kvp.Key;
+            Path path = kvp.Key;
             LineRenderer line = kvp.Value;
 
-            if (!line || !p.From || !p.To) continue;
+            if (!line || !path.From || !path.To)
+                continue;
 
             Color targetColor = neutralLineColor;
 
-            if (p.From.supplyFaction == SupplyFaction.Neutral) return;
-            
-            // Rule 1: Both connected nodes are Ally
-            if (p.From.supplyFaction == SupplyFaction.Ally && p.To.supplyFaction == SupplyFaction.Ally)
+            SupplyFaction fromFaction = path.From.supplyFaction;
+            SupplyFaction toFaction = path.To.supplyFaction;
+
+            // Neutral or mixed-faction edges are never active supply lines.
+            if (fromFaction == SupplyFaction.Neutral || toFaction == SupplyFaction.Neutral ||
+                fromFaction != toFaction)
             {
-                targetColor = allyLineColor;
-            }
-            // Rule 2: Both connected nodes are Enemy
-            else if (p.From.supplyFaction == SupplyFaction.Enemy && p.To.supplyFaction == SupplyFaction.Enemy)
-            {
-                targetColor = enemyLineColor;
-            }
-            // Rule 3: Neutral or mixed factions -> Gray (neutralLineColor) (DEFAULT)
-            {
+                line.startColor = targetColor;
+                line.endColor = targetColor;
+                continue;
             }
 
-            // Apply color to the line renderer (supporting both start/end color settings)
+            Node headquarters = fromFaction == SupplyFaction.Ally
+                ? BattleManager.Instance.playerHeadquartersNode
+                : BattleManager.Instance.enemyHeadquartersNode;
+
+            bool fromConnected = path.From.IsConnectedToHq(headquarters, fromFaction);
+            bool toConnected = path.To.IsConnectedToHq(headquarters, fromFaction);
+
+            // An edge is active only when both endpoints are HQ-connected.
+            if (!fromConnected || !toConnected)
+            {
+                line.startColor = targetColor;
+                line.endColor = targetColor;
+                continue;
+            }
+
+            targetColor = fromFaction == SupplyFaction.Ally
+                ? allyLineColor
+                : enemyLineColor;
+
             line.startColor = targetColor;
             line.endColor = targetColor;
         }
