@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8e090d744408d043a66a64ec86de64a, type: 3}
   m_Name: ReservoirLost
   m_EditorClassIdentifier: Assembly-CSharp::ScriptableObjects.Global_Effects.NodeEffect
-  effectName: DEATH BEFORE DISHONOR
-  description: +100% attack to all Malay Regiment troops on Bukit Chandu.
-  target: 4
+  effectName: Reservoir Lost
+  description: Water Supply lost. -20% attack to all Allies.
+  scope: 0
+  target: 1
   stat: 0
   multiplier: 0.8

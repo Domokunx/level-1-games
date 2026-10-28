@@ -415,27 +415,27 @@ public class NodeManager : MonoBehaviour
 
         float multiplier = 1f;
 
-        foreach (Node node in _nodes)
+        foreach (Node sourceNode in _nodes)
         {
-            if (!node)
+            if (!sourceNode)
                 continue;
 
-            if (node.IsControlledByEnemy && node.effectsWhenLost != null)
+            if (sourceNode.IsControlledByEnemy && sourceNode.effectsWhenLost != null)
             {
-                foreach (NodeEffect effect in node.effectsWhenLost)
+                foreach (NodeEffect effect in sourceNode.effectsWhenLost)
                 {
-                    if (effect && effect.stat == EffectStat.Attack && effect.AppliesTo(unit))
+                    if (effect && effect.stat == EffectStat.Attack && effect.AppliesTo(unit, sourceNode))
                     {
                         multiplier *= effect.multiplier;
                     }
                 }
             }
 
-            if (node.IsControlledByAlly && node.effectsWhileHeld != null)
+            if (sourceNode.IsControlledByAlly && sourceNode.effectsWhileHeld != null)
             {
-                foreach (NodeEffect effect in node.effectsWhileHeld)
+                foreach (NodeEffect effect in sourceNode.effectsWhileHeld)
                 {
-                    if (effect && effect.stat == EffectStat.Attack && effect.AppliesTo(unit))
+                    if (effect && effect.stat == EffectStat.Attack && effect.AppliesTo(unit, sourceNode))
                     {
                         multiplier *= effect.multiplier;
                     }

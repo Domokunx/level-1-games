@@ -997,6 +997,14 @@ PrefabInstance:
       propertyPath: 'neighbours.Array.data[4]'
       value: 
       objectReference: {fileID: 1126450009}
+    - target: {fileID: 4190081149029611576, guid: 1d9b4d6c0e5989f43814edf481d621db, type: 3}
+      propertyPath: effectsWhenLost.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4190081149029611576, guid: 1d9b4d6c0e5989f43814edf481d621db, type: 3}
+      propertyPath: 'effectsWhenLost.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: b642839bdcf683f489a68d48aa3e84ec, type: 2}
     - target: {fileID: 4253308764308872577, guid: 1d9b4d6c0e5989f43814edf481d621db, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -4679,6 +4687,14 @@ PrefabInstance:
       propertyPath: 'neighbours.Array.data[2]'
       value: 
       objectReference: {fileID: 2105999140}
+    - target: {fileID: 4190081149029611576, guid: 1d9b4d6c0e5989f43814edf481d621db, type: 3}
+      propertyPath: effectsWhileHeld.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4190081149029611576, guid: 1d9b4d6c0e5989f43814edf481d621db, type: 3}
+      propertyPath: 'effectsWhileHeld.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 5960cfd5f60762143b3e7eb1771be800, type: 2}
     - target: {fileID: 4253308764308872577, guid: 1d9b4d6c0e5989f43814edf481d621db, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -4836,6 +4852,14 @@ PrefabInstance:
       propertyPath: 'neighbours.Array.data[1]'
       value: 
       objectReference: {fileID: 1126450009}
+    - target: {fileID: 4190081149029611576, guid: 1d9b4d6c0e5989f43814edf481d621db, type: 3}
+      propertyPath: effectsWhenLost.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4190081149029611576, guid: 1d9b4d6c0e5989f43814edf481d621db, type: 3}
+      propertyPath: 'effectsWhenLost.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 5960cfd5f60762143b3e7eb1771be800, type: 2}
     - target: {fileID: 4253308764308872577, guid: 1d9b4d6c0e5989f43814edf481d621db, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -5515,6 +5539,14 @@ PrefabInstance:
       propertyPath: 'neighbours.Array.data[4]'
       value: 
       objectReference: {fileID: 1062669756}
+    - target: {fileID: 4190081149029611576, guid: 1d9b4d6c0e5989f43814edf481d621db, type: 3}
+      propertyPath: effectsWhenLost.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4190081149029611576, guid: 1d9b4d6c0e5989f43814edf481d621db, type: 3}
+      propertyPath: 'effectsWhenLost.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 7bac9e0db43d876489162f7e4a3fd6a4, type: 2}
     - target: {fileID: 4253308764308872577, guid: 1d9b4d6c0e5989f43814edf481d621db, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0

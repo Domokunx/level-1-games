@@ -29,8 +29,7 @@ public class Unit : MonoBehaviour
             currentNode,
             isPlayerUnit ? SupplyFaction.Ally : SupplyFaction.Enemy
         );
-    public RegimentType Regiment => data.regimentType;
-    public bool IsAdnanBinSaidi => data.isAdnanBinSaidi;
+    public RegimentType Regiment => data ? data.regimentType: RegimentType.None;
     
     [Header("Animation Parameters")]
     [SerializeField] private float moveSpeed = 1.5f;
