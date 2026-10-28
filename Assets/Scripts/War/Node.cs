@@ -70,6 +70,7 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     [Header("Stack Portrait UI")]
     [SerializeField] private Transform portraitsContainer;
     [SerializeField] private Image portraitPrefab;
+    [SerializeField] private TMPro.TextMeshProUGUI stackCountText;
     
     [Header("Highlight Visuals")] 
     [SerializeField] private SpriteRenderer nodeColor;
@@ -89,15 +90,24 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     public int StackMoveRange => units.Count == 0 ? 0 : units.Min(unit => unit.MoveRange);
     public int StackSpeed => units.Count == 0 ? 0 : units.Min(unit => unit.Speed);
     
-    private void Awake()
+    private void Start()
     {
-        if (units != null)
+        InitializeNodeState();
+    }
+
+    private void InitializeNodeState()
+    {
+        if (units == null) units = new List<Unit>();
+        
+        RemoveInvalidUnits();
+
+        foreach (Unit unit in units)
         {
-            foreach (var unit in units)
-            {
-                unit.currentNode = this;
-            }
+            if (unit) unit.currentNode = this;
         }
+
+        RefreshUnitVisual();
+        RefreshNodeColor();
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -203,13 +213,26 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
                 Destroy(portraitsContainer.GetChild(i).gameObject);
             }
 
-            foreach (Unit unit in units)
+            int maxVisiblePortraits = 3;
+            int visibleCount = Mathf.Min(units.Count, maxVisiblePortraits);
+
+            for (int i = 0; i < visibleCount; i++)
             {
+                Unit unit = units[i];
+
                 if (!unit || !unit.Portrait)
                     continue;
 
                 Image portrait = Instantiate(portraitPrefab, portraitsContainer);
                 portrait.sprite = unit.Portrait;
+            }
+
+            int hiddenCount = units.Count - visibleCount;
+            stackCountText.gameObject.SetActive(hiddenCount > 0);
+
+            if (hiddenCount > 0)
+            {
+                stackCountText.text = $"+{hiddenCount}";
             }
         }
 

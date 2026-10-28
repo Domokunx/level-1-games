@@ -34,13 +34,13 @@ public class NodeManager : MonoBehaviour
         
         FindALlNodes();
         // ValidateAndRepairNeighbours();
-        GenerateAllPaths();
     }
 
     private void Start()
     {
         // Init Map
         RenderAllPaths();
+        GenerateAllPaths();
     }
 
     private void FindALlNodes()
