@@ -57,8 +57,15 @@ public class PathFinder : MonoBehaviour
                 // null neighbour or visited
                 if (!neighbour || visited.Contains(neighbour)) continue;
                 
-                // neighbour is occupied (Remove if allow bypassing allies)
-                if (neighbour != end && neighbour.isOccupied) continue;
+                bool isEnemyOccupied =
+                    neighbour.isOccupied &&
+                    neighbour.units[0] &&
+                    start.isOccupied &&
+                    start.units[0] &&
+                    neighbour.units[0].isPlayerUnit != start.units[0].isPlayerUnit;
+                
+                if (neighbour != end && isEnemyOccupied)
+                    continue;
                 
                 float newMovementCostToNeighbour = current.gCost + GetDistance(current, neighbour);
 

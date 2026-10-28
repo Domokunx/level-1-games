@@ -158,6 +158,18 @@ public class BattleManager : MonoBehaviour
         {
             case BattleState.PlayerTurn:
             {
+                bool isReachableDestination =
+                    selectedUnit &&
+                    selectedUnit.currentNode != node &&
+                    reachableNodes.Contains(node);
+
+                if (isReachableDestination)
+                {
+                    inspectedNode = node;
+                    BattleUIManager.Instance.ShowInspectedNodeUI(node, selectedUnit);
+                    break;
+                }
+                
                 bool hasPlayerUnit =
                     node.HasUnits() &&
                     node.units[0] &&

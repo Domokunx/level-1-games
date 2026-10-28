@@ -98,14 +98,7 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
         supplyFaction = faction;
         supplyOwner = owner;
 
-        if (isOccupied || !nodeColor) return;
-        
-        nodeColor.color = faction switch
-        {
-            SupplyFaction.Ally => unoccupiedAllyColor,
-            SupplyFaction.Enemy => unoccupiedEnemyColor,
-            _ => neutralColor
-        };
+        RefreshNodeColor();
     }
     
     public void SetHighlightState(NodeHighlightState state)
@@ -179,43 +172,48 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
 
     private void RefreshUnitVisual()
     {
-        if (!portraitsContainer)
-            return;
-
-        // Remove existing portrait instances
-        for (int i = portraitsContainer.childCount - 1; i >= 0; i--)
-        {
-            Destroy(portraitsContainer.GetChild(i).gameObject);
-        }
-
         RemoveInvalidUnits();
 
-        if (units.Count == 0)
+        if (portraitsContainer)
         {
-            if (nodeColor)
-                nodeColor.color = supplyFaction switch
-                {
-                    SupplyFaction.Ally => unoccupiedAllyColor,
-                    SupplyFaction.Enemy => unoccupiedEnemyColor,
-                    _ => neutralColor
-                };
+            for (int i = portraitsContainer.childCount - 1; i >= 0; i--)
+            {
+                Destroy(portraitsContainer.GetChild(i).gameObject);
+            }
 
+            foreach (Unit unit in units)
+            {
+                if (!unit || !unit.Portrait)
+                    continue;
+
+                Image portrait = Instantiate(portraitPrefab, portraitsContainer);
+                portrait.sprite = unit.Portrait;
+            }
+        }
+
+        RefreshNodeColor();
+    }
+    
+    private void RefreshNodeColor()
+    {
+        if (!nodeColor)
             return;
-        }
 
-        foreach (Unit unit in units)
-        {
-            Image portrait = Instantiate(portraitPrefab, portraitsContainer);
-            portrait.sprite = unit.Portrait;
-            portrait.gameObject.SetActive(unit.Portrait);
-        }
-
-        if (nodeColor)
+        if (units.Count > 0 && units[0])
         {
             nodeColor.color = units[0].isPlayerUnit
                 ? occupiedAllyColor
                 : occupiedEnemyColor;
+
+            return;
         }
+
+        nodeColor.color = supplyFaction switch
+        {
+            SupplyFaction.Ally => unoccupiedAllyColor,
+            SupplyFaction.Enemy => unoccupiedEnemyColor,
+            _ => neutralColor
+        };
     }
     
     public void TakeStackDamage(int damage)
@@ -261,7 +259,7 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     #region Debug Visual Effects
     public IEnumerator FlashDamageEffect()
     {
-        if (nodeColor == null) yield break;
+        if (!nodeColor) yield break;
 
         Color originalColor = nodeColor.color;
         nodeColor.color = Color.white;
@@ -271,30 +269,35 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
 
     public IEnumerator PulsePortrait()
     {
-        if (unitImage == null || !unitImage.enabled) yield break;
+        if (!portraitsContainer || portraitsContainer.childCount == 0)
+            yield break;
 
-        RectTransform rectTransform = unitImage.rectTransform;
-        Vector3 originalScale = rectTransform.localScale;
-        Vector3 targetScale = originalScale * 1.35f;
+        Transform transform = portraitsContainer;
+        Vector3 originalScale = transform.localScale;
+        Vector3 targetScale = originalScale * 1.15f;
 
-        float elapsed = 0f;
         float duration = 0.1f;
+        float elapsed = 0f;
+
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            rectTransform.localScale = Vector3.Lerp(originalScale, targetScale, elapsed / duration);
+            transform.localScale =
+                Vector3.Lerp(originalScale, targetScale, elapsed / duration);
             yield return null;
         }
 
         elapsed = 0f;
+
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            rectTransform.localScale = Vector3.Lerp(targetScale, originalScale, elapsed / duration);
+            transform.localScale =
+                Vector3.Lerp(targetScale, originalScale, elapsed / duration);
             yield return null;
         }
 
-        rectTransform.localScale = originalScale;
+        transform.localScale = originalScale;
     }
     #endregion
 }
