@@ -283,14 +283,16 @@ public class BattleManager : MonoBehaviour
         isExecutingAction = false;
     }
 
-    public IEnumerator MoveStackAlongPath(List<Node> path, Node currentNode, float stepDelay = 0.15f)
+    private IEnumerator MoveStackAlongPath(List<Node> path, Node currentNode, float stepDelay = 0.15f)
     {
         for (int i = 0; i < path.Count - 1; i++)
         {
             // Suppress supply refresh for intermediate steps
-            NodeManager.Instance.MoveStackToNode(path[i], path[i + 1], i == path.Count - 1);
+            NodeManager.Instance.MoveStackToNode(path[i], path[i + 1], false);
             yield return new WaitForSeconds(stepDelay);
         }
+        
+        NodeManager.Instance.RefreshSupplyState();
     }
     
     private IEnumerator ExecuteAttack(Node attacker, Node defender)

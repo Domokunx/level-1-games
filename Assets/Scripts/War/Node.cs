@@ -29,8 +29,6 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     public bool isOccupiedByAlly => isOccupied && units[0].isPlayerUnit;
     public bool ContainsPlayerUnits => units.Exists(unit => unit && unit.isPlayerUnit);
     public bool ContainsEnemyUnits => units.Exists(unit => unit && !unit.isPlayerUnit);
-    public bool IsControlledByEnemy => _hasBeenLost;
-    private bool _hasBeenLost;
     
     public static event Action<Node> OnNodeClicked;
     public Image unitImage;
@@ -173,11 +171,6 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
         }
         
         units.Add(unit);
-        
-        if (!unit.isPlayerUnit)
-        {
-            _hasBeenLost = true;
-        }
         
         unit.currentNode = this;
         RefreshUnitVisual();
