@@ -471,17 +471,13 @@ public class BattleManager : MonoBehaviour
 
             foreach (Node candidate in enemyReachable)
             {
-                if (!candidate ||
-                    candidate.isOccupied ||
-                    candidate.supplyFaction != SupplyFaction.Ally)
+                if (!candidate || candidate.isOccupied || candidate.supplyFaction != SupplyFaction.Ally)
                 {
                     continue;
                 }
 
                 // Ignore territory that is already disconnected from the Allied HQ.
-                if (!NodeManager.Instance.IsNodeSupplied(
-                        candidate,
-                        SupplyFaction.Ally))
+                if (!NodeManager.Instance.IsNodeSupplied(candidate, SupplyFaction.Ally))
                 {
                     continue;
                 }
@@ -490,11 +486,7 @@ public class BattleManager : MonoBehaviour
 
                 foreach (Node neighbour in candidate.neighbours)
                 {
-                    if (neighbour &&
-                        neighbour.supplyFaction == SupplyFaction.Ally &&
-                        NodeManager.Instance.IsNodeSupplied(
-                            neighbour,
-                            SupplyFaction.Ally))
+                    if (neighbour && neighbour.supplyFaction == SupplyFaction.Ally && NodeManager.Instance.IsNodeSupplied(neighbour, SupplyFaction.Ally))
                     {
                         alliedConnections++;
                     }
@@ -529,13 +521,26 @@ public class BattleManager : MonoBehaviour
             
             // Check for immediate Attack targets (Range 1)
             Unit targetPlayerToAttack = null;
-            foreach (var neighbour in enemy.currentNode.neighbours)
+            int lowestHealth = int.MaxValue;
+            bool foundLethalTarget = false;
+
+            foreach (Node neighbour in enemy.currentNode.neighbours)
             {
-                if (!neighbour) continue;
-                if (neighbour.isOccupied && neighbour.currentUnit && neighbour.currentUnit.isPlayerUnit)
+                if (!neighbour || !neighbour.currentUnit || !neighbour.currentUnit.isPlayerUnit) continue;
+
+                Unit candidate = neighbour.currentUnit;
+                bool canKill = enemy.GetEffectiveAttack >= candidate.currentHealth;
+
+                if (canKill && !foundLethalTarget)
                 {
-                    targetPlayerToAttack = neighbour.currentUnit;
-                    break;
+                    targetPlayerToAttack = candidate;
+                    lowestHealth = candidate.currentHealth;
+                    foundLethalTarget = true;
+                }
+                else if (canKill == foundLethalTarget && candidate.currentHealth < lowestHealth)
+                {
+                    targetPlayerToAttack = candidate;
+                    lowestHealth = candidate.currentHealth;
                 }
             }
 
