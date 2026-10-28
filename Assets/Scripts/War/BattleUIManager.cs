@@ -11,12 +11,14 @@ public class BattleUIManager : MonoBehaviour
     [SerializeField] private Image selectedPortrait;
     [SerializeField] private TextMeshProUGUI selectedNameText;
     [SerializeField] private TextMeshProUGUI selectedStatsText;
+    [SerializeField] private TextMeshProUGUI selectedHealthText;
 
     [Header("Enemy Panel (Right)")]
     [SerializeField] private GameObject enemyNodePanel;
     [SerializeField] private Image enemyPortrait;
     [SerializeField] private TextMeshProUGUI enemyNameText;
     [SerializeField] private TextMeshProUGUI enemyStatsText;
+    [SerializeField] private TextMeshProUGUI enemyHealthText;
 
     [Header("Deployment UI Overlay")]
     [SerializeField] private GameObject deploymentCounterPanel;
@@ -64,34 +66,20 @@ public class BattleUIManager : MonoBehaviour
             return;
         }
 
-        // Ally UI
-        Unit allyToShow = null;
-        if (BattleManager.Instance.currentState == BattleState.Deployment)
-        {
-            if (node.units.Count != 0 && node.units[0] && node.units[0].isPlayerUnit)
-            {
-                allyToShow = node.units[0];
-            }
-        }
-        else
-        {
-            allyToShow = (selectedUnit) ? selectedUnit : (node.units[0] && node.units[0].isPlayerUnit ? node.units[0] : null);
-        }
+        node.RemoveInvalidUnits();
 
-        if (allyToShow) ShowSelectedUnitUI(allyToShow);
-        else HideSelectedUnitUI();
-
-        // Enemy UI
-        if (node.units.Count != 0 && node.units[0] && !node.units[0].isPlayerUnit)
-        {
-            ShowEnemyUnitUI(node.units[0]);
-        }
-        else
-        {
-            HideEnemyUnitUI();
-        }
-
+        // Always update the action button, including for empty deployment nodes
         UpdatePrimaryActionButton(node, selectedUnit);
+
+        if (node.ContainsPlayerUnits)
+            ShowSelectedStackUI(node);
+        else
+            HideSelectedUnitUI();
+
+        if (node.ContainsEnemyUnits)
+            ShowEnemyStackUI(node);
+        else
+            HideEnemyUnitUI();
     }
 
     private void UpdatePrimaryActionButton(Node node, Unit selectedUnit)
@@ -159,31 +147,57 @@ public class BattleUIManager : MonoBehaviour
         }
     }
 
-    private void ShowSelectedUnitUI(Unit unit)
+    private void ShowSelectedStackUI(Node unitStack)
     {
+        if (!unitStack || !unitStack.ContainsPlayerUnits || unitStack.units.Count == 0)
+        {
+            HideSelectedUnitUI();
+            return;
+        }
+
+        Unit unit = unitStack.units[0];
+
+        if (!unit)
+        {
+            HideSelectedUnitUI();
+            return;
+        }
         selectedUnitPanel.SetActive(true);
         selectedNameText.text = unit.UnitName;
-        selectedStatsText.text = $"HP: {unit.currentHealth} | ATK: {unit.AttackPower} | MOV: {unit.MoveRange}";
 
         string supplyStatus = unit.IsSupplied ? "<color=green>(+50%)</color>" : "<color=red>(Isolated)</color>";
-        selectedStatsText.text = $"HP: {unit.currentHealth}/{unit.MaxHealth} | ATK: {unit.GetEffectiveAttack}{supplyStatus} | MOV: {unit.MoveRange}";
-
+        selectedStatsText.text = $"ATK: {unitStack.StackEffectiveAttack}{supplyStatus} | MOV: {unitStack.StackMoveRange}";
+        selectedHealthText.text = $"HP: {unitStack.StackHealth}/{unitStack.StackMaxHealth}";
         if (!selectedPortrait) return;
         selectedPortrait.gameObject.SetActive(unit.Portrait != null);
         selectedPortrait.sprite = unit.Portrait;
     }
 
-    private void ShowEnemyUnitUI(Unit enemyUnit)
+    private void ShowEnemyStackUI(Node enemyNode)
     {
+        if (!enemyNode || !enemyNode.ContainsEnemyUnits || enemyNode.units.Count == 0)
+        {
+            HideEnemyUnitUI();
+            return;
+        }
+
+        Unit enemy = enemyNode.units[0];
+
+        if (!enemy)
+        {
+            HideEnemyUnitUI();
+            return;
+        }
         enemyNodePanel.SetActive(true);
-        enemyNameText.text = enemyUnit.UnitName;
+        enemyNameText.text = enemy.UnitName;
         
-        string supplyStatus = enemyUnit.IsSupplied ? "<color=green>(+50%)</color>" : "<color=red>(Isolated)</color>";
-        enemyStatsText.text = $"HP: {enemyUnit.currentHealth}/{enemyUnit.MaxHealth} | ATK: {enemyUnit.GetEffectiveAttack}{supplyStatus} | SPD: {enemyUnit.Speed}";
+        string supplyStatus = enemy.IsSupplied ? "<color=green>(+50%)</color>" : "<color=red>(Isolated)</color>";
+        enemyStatsText.text = $" | ATK: {enemyNode.StackEffectiveAttack}{supplyStatus} | MOV: {enemyNode.StackSpeed}";
+        selectedHealthText.text = $"HP: {enemyNode.StackHealth}/{enemyNode.StackMaxHealth}";
 
         if (!enemyPortrait) return;
-        enemyPortrait.gameObject.SetActive(enemyUnit.Portrait != null);
-        enemyPortrait.sprite = enemyUnit.Portrait;
+        enemyPortrait.gameObject.SetActive(enemy.Portrait != null);
+        enemyPortrait.sprite = enemy.Portrait;
     }
 
     private void HideSelectedUnitUI() => selectedUnitPanel.SetActive(false);

@@ -37,7 +37,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: -50, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1310905460760805127
 CanvasRenderer:
@@ -54,7 +54,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2675455275023736126}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -90,7 +90,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
   m_HorizontalFit: 0
-  m_VerticalFit: 0
+  m_VerticalFit: 1
 --- !u!114 &8760080771004853157
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -359,7 +359,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Node
   neighbours: []
-  currentUnit: {fileID: 0}
+  units: []
   unitImage: {fileID: 5784372426028479627}
   supplyFaction: 0
   supplyOwner: {fileID: 0}
@@ -368,6 +368,8 @@ MonoBehaviour:
   occupiedEnemyColor: {r: 1, g: 0, b: 0, a: 1}
   unoccupiedEnemyColor: {r: 1, g: 0.4, b: 0.4, a: 1}
   neutralColor: {r: 1, g: 1, b: 1, a: 1}
+  portraitsContainer: {fileID: 4047409423667128376}
+  portraitPrefab: {fileID: 7097299813150252286, guid: 47458f40777330a4a8e81df6dbc10fdf, type: 3}
   nodeColor: {fileID: 8989767429051028801}
   highlightRenderer: {fileID: 8933746579165727385}
   moveColor: {r: 0, g: 0.8, b: 1, a: 0.5}

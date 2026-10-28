@@ -45,6 +45,10 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     [SerializeField] private Color unoccupiedEnemyColor = new Color(1f, 0.4f, 0.4f, 1f);
     [SerializeField] private Color neutralColor = Color.white;
     
+    [Header("Stack Portrait UI")]
+    [SerializeField] private Transform portraitsContainer;
+    [SerializeField] private Image portraitPrefab;
+    
     [Header("Highlight Visuals")] 
     [SerializeField] private SpriteRenderer nodeColor;
     [SerializeField] private SpriteRenderer highlightRenderer; 
@@ -57,6 +61,7 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     
     [Header("Stack Stats")]
     public int StackHealth => units.Sum(unit => unit.currentHealth);
+    public int StackMaxHealth => units.Sum(unit => unit.MaxHealth);
     public int StackAttack => units.Sum(unit => unit.AttackPower);
     public int StackEffectiveAttack => units.Sum(unit => unit.GetEffectiveAttack);
     public int StackMoveRange => units.Count == 0 ? 0 : units.Min(unit => unit.MoveRange);
@@ -136,7 +141,7 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     
     #region Stack Operations
 
-    private void RemoveInvalidUnits()
+    public void RemoveInvalidUnits()
     {
         units.RemoveAll(unit => !unit);
     }
@@ -174,18 +179,36 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
 
     private void RefreshUnitVisual()
     {
-        if (!unitImage)
+        if (!portraitsContainer)
             return;
 
-        if (!isOccupied)
+        // Remove existing portrait instances
+        for (int i = portraitsContainer.childCount - 1; i >= 0; i--)
         {
-            unitImage.enabled = false;
-            unitImage.sprite = null;
+            Destroy(portraitsContainer.GetChild(i).gameObject);
+        }
+
+        RemoveInvalidUnits();
+
+        if (units.Count == 0)
+        {
+            if (nodeColor)
+                nodeColor.color = supplyFaction switch
+                {
+                    SupplyFaction.Ally => unoccupiedAllyColor,
+                    SupplyFaction.Enemy => unoccupiedEnemyColor,
+                    _ => neutralColor
+                };
+
             return;
         }
 
-        unitImage.enabled = true;
-        unitImage.sprite = units[0].Portrait;
+        foreach (Unit unit in units)
+        {
+            Image portrait = Instantiate(portraitPrefab, portraitsContainer);
+            portrait.sprite = unit.Portrait;
+            portrait.gameObject.SetActive(unit.Portrait);
+        }
 
         if (nodeColor)
         {

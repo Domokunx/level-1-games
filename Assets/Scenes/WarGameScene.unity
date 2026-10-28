@@ -682,10 +682,12 @@ MonoBehaviour:
   selectedPortrait: {fileID: 141243423}
   selectedNameText: {fileID: 488816059}
   selectedStatsText: {fileID: 968416597}
+  selectedHealthText: {fileID: 919522046}
   enemyNodePanel: {fileID: 773011856}
   enemyPortrait: {fileID: 250718706}
   enemyNameText: {fileID: 1833621478}
   enemyStatsText: {fileID: 994514277}
+  enemyHealthText: {fileID: 1931873737}
   deploymentCounterPanel: {fileID: 360274054}
   deploymentCounterText: {fileID: 360274056}
   contextualActionButtons: {fileID: 1278786012}

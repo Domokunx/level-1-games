@@ -15,8 +15,8 @@ MonoBehaviour:
   unitName: Enemy
   description: enemy
   portrait: {fileID: -6555109970528968690, guid: 142a2294ea6a10847b4ef65f363d9e7c, type: 3}
-  maxHealth: 100
+  maxHealth: 250
   moveRange: 1
-  attackPower: 20
+  attackPower: 150
   attackRange: 1
-  speed: 1
+  speed: 2
