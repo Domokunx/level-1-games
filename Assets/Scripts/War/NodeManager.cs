@@ -84,7 +84,7 @@ public class NodeManager : MonoBehaviour
             _pathLineRenderers.Add(p, lineObj);
         }
 
-        UpdateAllPathColors();
+        RefreshSupplyState();
     }
 
     public void RefreshSupplyState()
@@ -115,10 +115,6 @@ public class NodeManager : MonoBehaviour
                 line.endColor = targetColor;
                 continue;
             }
-
-            Node headquarters = fromFaction == SupplyFaction.Ally
-                ? BattleManager.Instance.playerHeadquartersNode
-                : BattleManager.Instance.enemyHeadquartersNode;
 
             bool fromConnected = IsNodeSupplied(path.From, fromFaction);
             bool toConnected = IsNodeSupplied(path.To, fromFaction);

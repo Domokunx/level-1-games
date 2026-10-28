@@ -132,7 +132,7 @@ public class BattleManager : MonoBehaviour
         }
 
         // Refresh the edge lines to show the new enemy territory/supply trails
-        NodeManager.Instance.UpdateAllPathColors();
+        NodeManager.Instance.RefreshSupplyState();
     }
     
     private void HandleNodeClick(Node node)
@@ -246,7 +246,7 @@ public class BattleManager : MonoBehaviour
                 node.SetSupplyFaction(movingFaction, unit);
             }
             // Color the supply trail after traversal
-            NodeManager.Instance.UpdateAllPathColors();
+            NodeManager.Instance.RefreshSupplyState();
             
             // Update node occupancy
             yield return StartCoroutine(unit.MoveAlongPath(path));
