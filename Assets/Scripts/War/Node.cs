@@ -91,7 +91,9 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
         {
             if (unit) unit.currentNode = this;
         }
-
+        SetSupplyFaction(!HasUnits() 
+            ? SupplyFaction.Neutral : units[0].isPlayerUnit 
+                ? SupplyFaction.Ally : SupplyFaction.Neutral);
         RefreshUnitVisual();
         RefreshNodeColor();
     }
