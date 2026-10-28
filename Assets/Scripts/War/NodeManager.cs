@@ -272,6 +272,13 @@ public class NodeManager : MonoBehaviour
         if (!from || !to || from == to || !from.HasUnits())
             return;
 
+        // Attempt to move to enemy faction node
+        if (to.HasUnits() && to.units[0].isPlayerUnit != from.units[0].isPlayerUnit)
+        {
+            Debug.LogWarning($"Cannot move {from.name} onto enemy node {to.name}.");
+            return;
+        }
+
         List<Unit> movingUnits = from.units.ToList();
 
         SupplyFaction movingFaction =
@@ -284,18 +291,11 @@ public class NodeManager : MonoBehaviour
             from.RemoveUnit(unit);
         }
 
-        // Clear any remaining units defensively (O(1) probably lol)
-        foreach (Unit unit in to.units.ToList())
-        {
-            to.RemoveUnit(unit);
-        }
-
         to.SetSupplyFaction(movingFaction);
 
         foreach (Unit unit in movingUnits)
         {
             to.AddUnit(unit);
-            // unit.transform.position = to.transform.position; // Once we have unit representation, currently UI based
         }
 
         RefreshSupplyState();
@@ -308,7 +308,7 @@ public class NodeManager : MonoBehaviour
 
         unit.currentNode.SetHighlightState(NodeHighlightState.Selected);
 
-        var rangeNodes = GetNodesInRange(unit.currentNode, unit.MoveRange);
+        var rangeNodes = GetNodesInRange(unit.currentNode, unit.currentNode.StackMoveRange);
 
         // 1. Highlight Valid Movement Nodes (Unoccupied OR occupied by friendly Allies for stacking)
         foreach (Node node in rangeNodes)

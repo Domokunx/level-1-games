@@ -214,7 +214,7 @@ public class BattleManager : MonoBehaviour
         if (!unit.hasActedThisTurn)
         {
             // TODO: Add highlighting logic
-            reachableNodes = NodeManager.Instance.GetNodesInRange(unit.currentNode, unit.MoveRange);
+            reachableNodes = NodeManager.Instance.GetNodesInRange(unit.currentNode, unit.currentNode.StackMoveRange);
             NodeManager.Instance.HighlightRangesForUnit(unit);
         }
         else

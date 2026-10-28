@@ -135,6 +135,11 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     }
     
     #region Stack Operations
+
+    private void RemoveInvalidUnits()
+    {
+        units.RemoveAll(unit => !unit);
+    }
     public void AddUnit(Unit unit)
     {
         if (!unit || units.Contains(unit)) return;
@@ -144,6 +149,7 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
         {
             unit.currentNode.RemoveUnit(unit);
         }
+        RemoveInvalidUnits();
         
         units.Add(unit);
         unit.currentNode = this;
