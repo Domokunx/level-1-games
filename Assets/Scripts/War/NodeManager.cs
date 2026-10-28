@@ -419,7 +419,7 @@ public class NodeManager : MonoBehaviour
             if (!sourceNode)
                 continue;
 
-            if (!sourceNode.IsControlledByAlly && sourceNode.effectsWhenLost != null)
+            if (!sourceNode.IsControlledByEnemy && sourceNode.effectsWhenLost != null)
             {
                 foreach (NodeEffect effect in sourceNode.effectsWhenLost)
                 {

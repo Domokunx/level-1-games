@@ -75,6 +75,7 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     public int StackMoveRange => units.Count == 0 ? 0 : units.Min(unit => unit.MoveRange);
     public int StackSpeed => units.Count == 0 ? 0 : units.Min(unit => unit.Speed);
     public bool IsControlledByAlly => supplyFaction == SupplyFaction.Ally;
+    public bool IsControlledByEnemy => supplyFaction == SupplyFaction.Enemy;
     
     private void Start()
     {
@@ -91,6 +92,16 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
         {
             if (unit) unit.currentNode = this;
         }
+
+        // Inspector set 
+        if (supplyFaction != SupplyFaction.Neutral)
+        {
+            RefreshUnitVisual();
+            RefreshNodeColor();
+            return;
+        }
+        
+        // Ally Set
         SetSupplyFaction(!HasUnits() 
             ? SupplyFaction.Neutral : units[0].isPlayerUnit 
                 ? SupplyFaction.Ally : SupplyFaction.Neutral);
