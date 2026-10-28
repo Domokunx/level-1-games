@@ -159,15 +159,12 @@ public class BattleManager : MonoBehaviour
                 TrySelectUnit(node.units[0]);
                 break;
             
-            case BattleState.PlayerTurn:
-            {
-                if (node.CurrentHighlightState == NodeHighlightState.None && !node.units[0])
-                {
-                    DeselectUnit();
-                }
-
+            case BattleState.PlayerTurn
+                when node.HasUnits() &&
+                     node.units[0] &&
+                     node.units[0].isPlayerUnit:
+                TrySelectUnit(node.units[0]);
                 break;
-            }
             
             case BattleState.Deployment:
                 break;
@@ -291,11 +288,7 @@ public class BattleManager : MonoBehaviour
         // Check if the first strike defeated the target
         if (secondStriker.StackHealth <= 0)
         {
-            foreach (var unit in secondStriker.units)
-            {
-                HandleUnitDefeat(unit, firstStriker.units[0]);
-            }
-
+            NodeManager.Instance.MoveStackToNode(firstStriker, secondStriker);
             yield return new WaitForSeconds(0.5f);
             
             DeselectUnit();
@@ -316,10 +309,7 @@ public class BattleManager : MonoBehaviour
         // Check if the counter-attack defeated the attacker
         if (firstStriker.StackHealth <= 0)
         {
-            foreach (var unit in firstStriker.units)
-            {
-                HandleUnitDefeat(unit, secondStriker.units[0]);
-            }
+            NodeManager.Instance.MoveStackToNode(secondStriker, firstStriker);
             yield return new WaitForSeconds(0.5f);
         }
 

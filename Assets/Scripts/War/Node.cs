@@ -186,9 +186,10 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     {
         int remainingDamage = damage;
 
-        // Weakest units are removed first.
-        units.Sort((a, b) =>
-            a.currentHealth.CompareTo(b.currentHealth));
+        // Weakest units are removed first
+        List<Unit> damageOrder = units
+            .OrderBy(unit => unit.currentHealth)
+            .ToList();
 
         foreach (Unit unit in units.ToList())
         {

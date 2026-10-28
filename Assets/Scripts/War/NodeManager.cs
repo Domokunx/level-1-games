@@ -221,7 +221,8 @@ public class NodeManager : MonoBehaviour
 
     public void UnoccupyNode(Node node)
     {
-        if (!node) return;   
+        if (!node || node.HasUnits())
+            return;
         
         node.RemoveUnit(node.units[^1]);
     }
@@ -264,6 +265,16 @@ public class NodeManager : MonoBehaviour
         }
 
         return res;
+    }
+
+    public void MoveStackToNode(Node from, Node to)
+    {
+        UnoccupyNode(from);
+
+        foreach (Unit unit in from.units)
+        {
+            OccupyNode(to, unit);
+        }
     }
     
     #region Visual Highlights
