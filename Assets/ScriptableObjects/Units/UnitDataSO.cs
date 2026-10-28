@@ -19,7 +19,6 @@ namespace ScriptableObjects
         [TextArea] public string description;
         public Sprite portrait;
         public RegimentType regimentType;
-        public bool isAdnanBinSaidi;
         
         [Header("Base Stats")]
         public int maxHealth = 100;

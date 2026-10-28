@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ScriptableObjects.Global_Effects.NodeEffect
   effectName: DEATH BEFORE DISHONOR
   description: +100% attack to all Malay Regiment troops on Bukit Chandu.
-  scope: 1
+  scope: 0
   target: 3
   stat: 0
   multiplier: 2

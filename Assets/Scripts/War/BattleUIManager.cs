@@ -193,7 +193,7 @@ public class BattleUIManager : MonoBehaviour
         
         string supplyStatus = enemy.IsSupplied ? "<color=green>(+50%)</color>" : "<color=red>(Isolated)</color>";
         enemyStatsText.text = $" | ATK: {enemyNode.StackEffectiveAttack}{supplyStatus} | MOV: {enemyNode.StackSpeed}";
-        selectedHealthText.text = $"HP: {enemyNode.StackHealth}/{enemyNode.StackMaxHealth}";
+        enemyHealthText.text = $"HP: {enemyNode.StackHealth}/{enemyNode.StackMaxHealth}";
 
         if (!enemyPortrait) return;
         enemyPortrait.gameObject.SetActive(enemy.Portrait != null);

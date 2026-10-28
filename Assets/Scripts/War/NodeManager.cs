@@ -268,17 +268,12 @@ public class NodeManager : MonoBehaviour
         return res;
     }
 
-    public void MoveStackToNode(Node from, Node to)
+    public void MoveStackToNode(Node from, Node to, bool refreshSupply = true)
     {
-        if (!from || !to || from == to || !from.HasUnits())
-            return;
+        if (!from || !to || from == to || !from.HasUnits()) return;
 
         // Attempt to move to enemy faction node
-        if (to.HasUnits() && to.units[0].isPlayerUnit != from.units[0].isPlayerUnit)
-        {
-            Debug.LogWarning($"Cannot move {from.name} onto enemy node {to.name}.");
-            return;
-        }
+        if (to.HasUnits() && to.units[0].isPlayerUnit != from.units[0].isPlayerUnit) return;
 
         List<Unit> movingUnits = from.units.ToList();
 
@@ -299,7 +294,11 @@ public class NodeManager : MonoBehaviour
             to.AddUnit(unit);
         }
 
-        RefreshSupplyState();
+        // Dont BFS every loop 
+        if (refreshSupply)
+        {
+            RefreshSupplyState();
+        }
     }
     
     #region Visual Highlights

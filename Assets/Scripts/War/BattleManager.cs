@@ -285,10 +285,10 @@ public class BattleManager : MonoBehaviour
 
     public IEnumerator MoveStackAlongPath(List<Node> path, Node currentNode, float stepDelay = 0.15f)
     {
-        foreach (Node node in path)
+        for (int i = 0; i < path.Count - 1; i++)
         {
-            NodeManager.Instance.MoveStackToNode(currentNode, node);
-            currentNode = node;
+            // Suppress supply refresh for intermediate steps
+            NodeManager.Instance.MoveStackToNode(path[i], path[i + 1], i == path.Count - 1);
             yield return new WaitForSeconds(stepDelay);
         }
     }
