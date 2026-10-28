@@ -458,25 +458,6 @@ public class BattleManager : MonoBehaviour
         {
             if (!enemy || !enemy.currentNode ||  enemy.currentHealth <= 0) continue;
 
-            // 1. Check for immediate Attack targets (Range 1)
-            Unit targetPlayerToAttack = null;
-            foreach (var neighbour in enemy.currentNode.neighbours)
-            {
-                if (!neighbour) continue;
-                if (neighbour.isOccupied && neighbour.currentUnit && neighbour.currentUnit.isPlayerUnit)
-                {
-                    targetPlayerToAttack = neighbour.currentUnit;
-                    break;
-                }
-            }
-
-            if (targetPlayerToAttack)
-            {
-                yield return StartCoroutine(ExecuteAttack(enemy, targetPlayerToAttack));
-                yield return new WaitForSeconds(0.4f);
-                continue;
-            }
-
             // Get nodes strictly within this enemy's movement range
             List<Node> enemyReachable = NodeManager.Instance.GetNodesInRange(enemy.currentNode, enemy.MoveRange);
             if (enemyReachable.Count == 0) continue;
@@ -484,7 +465,7 @@ public class BattleManager : MonoBehaviour
             Dictionary<Node, int> graphDistances =
                 NodeManager.Instance.GetGraphDistances(enemy.currentNode);
             
-            // 2. Check for Vulnerable Supply Nodes 
+            // Check for Vulnerable Supply Nodes 
             Node targetSupplyNode = null;
             float highestSupplyThreat = float.MinValue;
 
@@ -545,8 +526,27 @@ public class BattleManager : MonoBehaviour
                 yield return new WaitForSeconds(0.4f);
                 continue;
             }
+            
+            // Check for immediate Attack targets (Range 1)
+            Unit targetPlayerToAttack = null;
+            foreach (var neighbour in enemy.currentNode.neighbours)
+            {
+                if (!neighbour) continue;
+                if (neighbour.isOccupied && neighbour.currentUnit && neighbour.currentUnit.isPlayerUnit)
+                {
+                    targetPlayerToAttack = neighbour.currentUnit;
+                    break;
+                }
+            }
 
-            // 3. Otherwise: Aggressively advance toward closest player unit, but pick the best destination WITHIN RANGE
+            if (targetPlayerToAttack)
+            {
+                yield return StartCoroutine(ExecuteAttack(enemy, targetPlayerToAttack));
+                yield return new WaitForSeconds(0.4f);
+                continue;
+            }
+
+            // Otherwise: Aggressively advance toward closest player unit, but pick the best destination WITHIN RANGE
             Unit closestPlayer = NodeManager.FindClosestPlayerUnit(enemy.currentNode);
             if (closestPlayer && closestPlayer.currentNode)
             {
