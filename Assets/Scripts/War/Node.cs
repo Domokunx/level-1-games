@@ -19,6 +19,8 @@ public enum NodeHighlightState
 
 public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
+    public bool isBukitChandu;
+    
     public List<Node> neighbours;
 
     [Header("Occupancy")]
@@ -35,6 +37,7 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     
     [Header("Global Effects")]
     public List<NodeEffect> effectsWhenLost = new();
+    public List<NodeEffect> effectsWhileHeld = new();
     private bool _hasBeenLost;
 
     public bool IsControlledByEnemy
@@ -83,6 +86,7 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     public int StackEffectiveAttack => units.Sum(unit => unit.GetEffectiveAttack);
     public int StackMoveRange => units.Count == 0 ? 0 : units.Min(unit => unit.MoveRange);
     public int StackSpeed => units.Count == 0 ? 0 : units.Min(unit => unit.Speed);
+    public bool IsControlledByAlly => supplyFaction == SupplyFaction.Ally;
     
     private void Start()
     {

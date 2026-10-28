@@ -46,7 +46,7 @@ namespace ScriptableObjects.Global_Effects
                 EffectTarget.Allies => unit.isPlayerUnit,
                 EffectTarget.Enemies => !unit.isPlayerUnit,
                 EffectTarget.DeathBeforeDishonor => 
-                    unit.isPlayerUnit && unit.currentNode.name == "Bukit Chandu" &&
+                    unit.isPlayerUnit && unit.currentNode && unit.currentNode.isBukitChandu &&
                     unit.Regiment == RegimentType.MalayRegiment,
                 _ => false
             };

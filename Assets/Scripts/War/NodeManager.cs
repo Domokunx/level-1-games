@@ -417,24 +417,28 @@ public class NodeManager : MonoBehaviour
 
         foreach (Node node in _nodes)
         {
-            if (!node || !node.IsControlledByEnemy || node.effectsWhenLost == null) continue;
+            if (!node)
+                continue;
 
-            foreach (NodeEffect effect in node.effectsWhenLost)
+            if (node.IsControlledByEnemy && node.effectsWhenLost != null)
             {
-                if (effect && effect.stat == EffectStat.Attack && effect.AppliesTo(unit))
+                foreach (NodeEffect effect in node.effectsWhenLost)
                 {
-                    multiplier *= effect.multiplier;
+                    if (effect && effect.stat == EffectStat.Attack && effect.AppliesTo(unit))
+                    {
+                        multiplier *= effect.multiplier;
+                    }
                 }
             }
-        }
 
-        if (unit.currentNode)
-        {
-            foreach (NodeEffect effect in unit.currentNode.effectsWhenLost)
+            if (node.IsControlledByAlly && node.effectsWhileHeld != null)
             {
-                if (effect && effect.stat == EffectStat.Attack && effect.AppliesTo(unit))
+                foreach (NodeEffect effect in node.effectsWhileHeld)
                 {
-                    multiplier *= effect.multiplier;
+                    if (effect && effect.stat == EffectStat.Attack && effect.AppliesTo(unit))
+                    {
+                        multiplier *= effect.multiplier;
+                    }
                 }
             }
         }
