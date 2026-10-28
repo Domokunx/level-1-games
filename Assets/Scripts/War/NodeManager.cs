@@ -358,35 +358,33 @@ public class NodeManager : MonoBehaviour
         return null; 
     }
 
-    public Node FindVulnerableSupplyNode(Node startNode)
+    public Dictionary<Node, int> GetGraphDistances(Node startNode)
     {
-        if (!startNode) return null;
+        Dictionary<Node, int> distances = new();
 
-        Queue<Node> queue = new Queue<Node>();
-        HashSet<Node> visited = new HashSet<Node>();
+        if (!startNode)
+            return distances;
 
+        Queue<Node> queue = new();
+
+        distances[startNode] = 0;
         queue.Enqueue(startNode);
-        visited.Add(startNode);
 
         while (queue.Count > 0)
         {
             Node current = queue.Dequeue();
+            int currentDistance = distances[current];
 
-            // Check if this node is an unoccupied, player-controlled supply point
-            if (current.supplyFaction == SupplyFaction.Ally && !current.isOccupied)
+            foreach (Node neighbour in current.neighbours)
             {
-                return current;
-            }
+                if (!neighbour || distances.ContainsKey(neighbour))
+                    continue;
 
-            foreach (Node neighbor in current.neighbours)
-            {
-                if (neighbor && visited.Add(neighbor))
-                {
-                    queue.Enqueue(neighbor);
-                }
+                distances[neighbour] = currentDistance + 1;
+                queue.Enqueue(neighbour);
             }
         }
 
-        return null; 
+        return distances;
     }
 }

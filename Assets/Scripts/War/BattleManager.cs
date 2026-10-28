@@ -481,15 +481,62 @@ public class BattleManager : MonoBehaviour
             List<Node> enemyReachable = NodeManager.Instance.GetNodesInRange(enemy.currentNode, enemy.MoveRange);
             if (enemyReachable.Count == 0) continue;
 
-            // 2. Check for Vulnerable Supply Nodes STRICTLY WITHIN Move Range
+            Dictionary<Node, int> graphDistances =
+                NodeManager.Instance.GetGraphDistances(enemy.currentNode);
+            
+            // 2. Check for Vulnerable Supply Nodes 
             Node targetSupplyNode = null;
-            foreach (var reachableNode in enemyReachable)
+            float highestSupplyThreat = float.MinValue;
+
+            foreach (Node candidate in enemyReachable)
             {
-                if (!reachableNode.isOccupied && reachableNode.supplyFaction == SupplyFaction.Ally)
+                if (!candidate ||
+                    candidate.isOccupied ||
+                    candidate.supplyFaction != SupplyFaction.Ally)
                 {
-                    targetSupplyNode = reachableNode;
-                    break;
+                    continue;
                 }
+
+                // Ignore territory that is already disconnected from the Allied HQ.
+                if (!NodeManager.Instance.IsNodeSupplied(
+                        candidate,
+                        SupplyFaction.Ally))
+                {
+                    continue;
+                }
+
+                int alliedConnections = 0;
+
+                foreach (Node neighbour in candidate.neighbours)
+                {
+                    if (neighbour &&
+                        neighbour.supplyFaction == SupplyFaction.Ally &&
+                        NodeManager.Instance.IsNodeSupplied(
+                            neighbour,
+                            SupplyFaction.Ally))
+                    {
+                        alliedConnections++;
+                    }
+                }
+
+                // Fewer connections means capturing this node is more likely to sever graph
+                float vulnerabilityScore = 100f - alliedConnections * 25f;
+
+                // Prefer nodes closer to the enemy
+                if (graphDistances.TryGetValue(candidate, out int graphDistance))
+                {
+                    vulnerabilityScore -= graphDistance * 10f;
+                }
+
+                if (graphDistance != int.MaxValue)
+                {
+                    vulnerabilityScore -= graphDistance * 10f;
+                }
+
+                if (!(vulnerabilityScore > highestSupplyThreat)) continue;
+                
+                highestSupplyThreat = vulnerabilityScore;
+                targetSupplyNode = candidate;
             }
 
             if (targetSupplyNode)
@@ -539,5 +586,35 @@ public class BattleManager : MonoBehaviour
         isExecutingAction = false;
         Debug.Log("Enemy Turn Completed. Player Turn Started.");
         OnPhaseChanged?.Invoke(currentState);
+    }
+    
+    private int GetGraphDistance(Node start, Node target)
+    {
+        if (!start || !target)
+            return int.MaxValue;
+
+        Queue<(Node node, int distance)> queue = new();
+        HashSet<Node> visited = new();
+
+        queue.Enqueue((start, 0));
+        visited.Add(start);
+
+        while (queue.Count > 0)
+        {
+            var current = queue.Dequeue();
+
+            if (current.node == target)
+                return current.distance;
+
+            foreach (Node neighbour in current.node.neighbours)
+            {
+                if (!neighbour || !visited.Add(neighbour))
+                    continue;
+
+                queue.Enqueue((neighbour, current.distance + 1));
+            }
+        }
+
+        return int.MaxValue;
     }
 }
