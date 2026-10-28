@@ -155,17 +155,27 @@ public class BattleManager : MonoBehaviour
 
         switch (currentState)
         {
-            case BattleState.PlayerTurn when node.units[0] != null && node.units[0].isPlayerUnit:
-                TrySelectUnit(node.units[0]);
+            case BattleState.PlayerTurn:
+            {
+                bool hasPlayerUnit =
+                    node.HasUnits() &&
+                    node.units[0] &&
+                    node.units[0].isPlayerUnit;
+
+                if (hasPlayerUnit)
+                {
+                    TrySelectUnit(node.units[0]);
+                }
+                else if (node.CurrentHighlightState == NodeHighlightState.None &&
+                         !node.HasUnits())
+                {
+                    // Clicking an empty, non-reachable node deselects.
+                    DeselectUnit();
+                }
+
                 break;
-            
-            case BattleState.PlayerTurn
-                when node.HasUnits() &&
-                     node.units[0] &&
-                     node.units[0].isPlayerUnit:
-                TrySelectUnit(node.units[0]);
-                break;
-            
+            }
+
             case BattleState.Deployment:
                 break;
         }

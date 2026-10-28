@@ -191,7 +191,7 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
             .OrderBy(unit => unit.currentHealth)
             .ToList();
 
-        foreach (Unit unit in units.ToList())
+        foreach (Unit unit in damageOrder)
         {
             if (remainingDamage <= 0)
                 break;
