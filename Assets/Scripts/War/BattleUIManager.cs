@@ -38,17 +38,12 @@ public class BattleUIManager : MonoBehaviour
 
     private void Start()
     {
-        if (BattleManager.Instance != null)
-        {
-            BattleManager.Instance.OnUnitDeployed += HandleUnitDeployed;
-            BattleManager.Instance.OnDeploymentCountChanged += UpdateDeploymentCounter;
-            BattleManager.Instance.OnPhaseChanged += HandlePhaseChanged;
+        if (BattleManager.Instance == null) return;
+        BattleManager.Instance.OnUnitDeployed += HandleUnitDeployed;
+        BattleManager.Instance.OnDeploymentCountChanged += UpdateDeploymentCounter;
+        BattleManager.Instance.OnPhaseChanged += HandlePhaseChanged;
 
-            if (BattleManager.Instance.currentState == BattleState.Deployment && deploymentCounterPanel)
-            {
-                deploymentCounterPanel.SetActive(true);
-            }
-        }
+        HandlePhaseChanged(BattleManager.Instance.currentState);
     }
 
     private void OnDestroy()

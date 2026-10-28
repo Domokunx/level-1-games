@@ -59,7 +59,6 @@ public class BattleManager : MonoBehaviour
     { 
         ResetDeploymentState();   
         SpawnInitialEnemies();
-        OnPhaseChanged?.Invoke(currentState);
     }
     private void OnEnable() => Node.OnNodeClicked += HandleNodeClick;
     private void OnDisable() => Node.OnNodeClicked -= HandleNodeClick;
@@ -83,6 +82,7 @@ public class BattleManager : MonoBehaviour
     public bool CanAttack(Node node) =>
         currentState == BattleState.PlayerTurn &&
         selectedUnit &&
+        !selectedUnit.currentNode &&
         node.currentUnit &&
         !node.currentUnit.isPlayerUnit &&
         selectedUnit.currentNode.neighbours.Contains(node);
@@ -280,7 +280,9 @@ public class BattleManager : MonoBehaviour
         if (secondStriker.currentHealth <= 0)
         {
             HandleUnitDefeat(secondStriker, firstStriker);
+            firstStriker.hasActedThisTurn = true;
             yield return new WaitForSeconds(0.5f);
+            
             DeselectUnit();
             isExecutingAction = false;
             yield break;
@@ -305,7 +307,6 @@ public class BattleManager : MonoBehaviour
 
         attacker.hasActedThisTurn = true;
         DeselectUnit();
-        TrySelectUnit(attacker);
         isExecutingAction = false;
     }
     private void HandleUnitDefeat(Unit defeatedUnit, Unit winningUnit)
