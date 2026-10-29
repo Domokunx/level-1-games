@@ -103,8 +103,10 @@ public class Node : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
         
         // Ally Set
         SetSupplyFaction(!HasUnits() 
-            ? SupplyFaction.Neutral : units[0].isPlayerUnit 
-                ? SupplyFaction.Ally : SupplyFaction.Neutral);
+            ? SupplyFaction.Neutral 
+            : units[0].isPlayerUnit 
+                ? SupplyFaction.Ally 
+                : SupplyFaction.Enemy);
         RefreshUnitVisual();
         RefreshNodeColor();
     }

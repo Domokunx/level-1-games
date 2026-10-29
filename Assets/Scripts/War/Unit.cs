@@ -31,9 +31,6 @@ public class Unit : MonoBehaviour
         );
     public RegimentType Regiment => data ? data.regimentType: RegimentType.None;
     
-    [Header("Animation Parameters")]
-    [SerializeField] private float moveSpeed = 1.5f;
-
     private void Awake()
     {
         InitializeUnit();
